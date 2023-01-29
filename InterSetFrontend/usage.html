@@ -1,0 +1,98 @@
+<html>
+ <head> 
+ <style>
+ #intro p
+{
+    font: normal 16px Arial;
+   // border-top: 1px solid #000000 ;
+    display: block;
+    color: black;
+    text-decoration: none;
+    line-height:26px;
+    padding-left:26px;            
+}
+
+#intro li
+{
+    font: normal 16px Arial;
+    line-height:26px;
+    padding-left:26px;            
+}
+
+#intro{
+	border-top: 1px solid #000000 ;
+}
+
+#intro h2{
+	padding-left:26px; 
+}
+
+#intro h3{
+	padding-left:26px; 
+}
+
+.redtext {
+        color: red;
+}
+ </style>
+ <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+ </head>
+<h1> <center> How to use the tool </center> </h1>
+
+<body  bgcolor="#F8F8F8"> 
+
+<div id=intro>
+
+<h2> Run the tool </h2>
+<p> <li> Construct a sqlite database as described in <i> How to set up the tool. </i> </li>
+<li> Define <code> var db = new sqlite3.Database('pathToDatabase'); </code>  </li>
+<li> Define <code> restapi.listen('Port number','IP adress'); </code> </li>
+<li> Run a Node.js server by calling <code> node rest_server.js </code>. </li>
+<li> Modify links to point to the services at the running server in the files <b>main.html</b>, <b>register.html</b>, <b>entityInfo.html</b>, <b>attributeInfo.html</b> and <b>globalInfo.html</b>.</li>
+<li> Run <code>http-server</code> (if run locally) </li>
+<li> Open <code> localhost </code> or a corresponding web page linking to <b>main.html</b> or some introductory page containing the appropriate link to <b>main.html</b>.</li>
+ </p>
+ 
+ <h2> Change data </h2>
+ <p>Once the tool is up and running, changing data and using the tool on different use cases is very simple. Just change the <b> pathToDatabase </b> string, re-run the Node.js server and reload the 
+ browser tab containing <b> main.html</b> file.</p>
+
+<h2>  Structure </h2>
+<p> The tool consists of three different redescription set exploration views that can be selected at the tools <a href="index.html"> main </a> page : </p>
+
+<ul>
+	<li> <a href="elementInfo.html"> Entity </a> based redescription set exploration </li>
+	<li>  <a href="attributeInfo.html">Attribute </a> based redescription set exploration</li>
+	<li> Redescription set exploration based on redescription <a href="globalInfo.html"> quality measures </a> </li>
+</ul>
+
+<p> <br> 
+The main steps on how to use each of this exploration views are explained on the corresponding view page.
+On each user click in the interface, a new <b>component is displayed below currently displayed components</b>. Please note, that you might need to <b>scroll</b> to see all the components.
+</p>
+
+<h2> Limitations </h2>
+<h3> Browser and memory </h3>
+<p> The tool is optimised to work on <a href="https://www.google.com/chrome/"> Google Chrome browser </a>.
+Some features, such as creating and loading the redescription relation graph require more than 1Gb of RAM memory. Thus, it is required to allow 64-bit Google Chrome to use the extended amount of memory per tab. 
+This can be done by inserting the command <code>--js-flags="--max-old-space-size=8384"</code> at the end of the <i>Target</i> field obtained by selecting <i>Properties</i> on the Google Chrome shortcut icon (Windows).
+The tool also works on other more popular browsers like <a href="https://www.mozilla.org/en-US/firefox/new/"> Mozilla Firefox </a> and <a href="http://windows.microsoft.com/en-us/internet-explorer/download-ie"> Internet Explorer </a>. 
+However, depending on the number of redescriptions and the number of measures used, some lag in crossfilter performance can be detected even when Google Chrome works without problems. Also, increasing the amount of allowed memory is 
+browser specific.</p>
+
+<h3> Loading entity or attribute graph </h3>
+<p> Entity or attribute graphs are potentially large pieces of data that currently must be divided into chunks to be transferred from the server to the client. The reason for this are 
+limitations and high memory usage of json parser. </p>
+<br>
+
+
+<p> The tool outputs redescription support as a html table if redescription support set contains less than 100000 entities. If this set contains more than 100000 entities the support set is
+exported to the output file in .csv format. <br></p>
+<p> Supported browsers for output to file option can be seen <a href="https://github.com/eligrey/FileSaver.js"> here </a>. </p>
+
+</div>
+
+</body>
+
+
+</html>

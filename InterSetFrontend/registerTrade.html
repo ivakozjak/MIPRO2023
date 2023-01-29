@@ -1,0 +1,158 @@
+ <html>
+  
+  <head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<script src="jquery-2.1.4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
+<script src="ui-bootstrap-tpls-0.6.0.js"></script> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular-route.min.js"></script>
+<script src="visualTrade.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+<script src="q.js"></script>
+ <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.css' type='text/css' media='all' />
+ <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.js'></script>
+ <script src="js/md5.min.js"></script>
+  </head>
+  
+  <body ng-app="redApp" ng-controller="redCtrl">
+  
+  <script>
+  
+   function register(form) {
+				
+				var registerLink = "http://127.0.0.1:8089/trade/register";
+				var checkRegisterLink = "http://127.0.0.1:8089/trade/checkRegInfo";
+		
+				var appElement = document.querySelector('[ng-app=redApp]');
+				var $scope = angular.element(appElement).scope();
+		
+		$scope.authorFail=1;
+				var params = {};
+				params['username'] = form.userid.value;
+				console.log(form.userid.value);
+				console.log(form.pswrd.value);
+				params['password'] = md5(form.pswrd.value); 
+				var hash = md5(form.pswrd.value);
+				console.log(hash);
+				params['password1'] = md5(form.pswrd1.value); 
+				
+				if(params['password']!=params['password1']){
+						alert('Passwords do not match!');
+						return;
+				}
+				
+				var options = {url: checkRegisterLink,
+               method: 'POST', 
+               data: {
+               userInfo: JSON.stringify(params)
+                        }
+                          };
+						 // console.log(Q);
+						  var promise=$scope.generalGETRequest(options);//$scope.getRedundancyInfo(options);
+						  
+						  promise.success(function (data){
+								console.log(data);
+								var ch = data.count[0].count;
+								
+								console.log(data.count[0].count);
+								
+								if(ch==1){
+									alert('Existing username!');
+									form.reset();
+									return;
+								}
+								else{
+								
+									var options = {url: registerLink,
+											method: 'POST', 
+										data: {
+												userInfo: JSON.stringify(params),
+												maxUserId: JSON.stringify(data.maxId[0].maxId)
+												}
+										};
+										
+										var promise1=$scope.generalGETRequest(options);
+										
+										promise1.success(function(data){
+												
+											location.href = "mainTrade.html";	
+										
+											}
+										)
+								
+											}
+									
+								
+						  });
+						  
+						  /*promise.success(function (data) {
+						  console.log('received succesfully!');
+						  console.log(data);
+				$scope.userInfo=data;
+				
+				if(typeof data.userInfo == 'undefined'){
+					$scope.authorFail=1;
+					console.log(data.userInfo);
+					console.log('first undefined');
+				}
+				else if(typeof data.userInfo[0] == 'undefined'){
+					$scope.authorFail=1;
+					console.log(data.userInfo[0]);
+					console.log('second undefined');
+					}
+				else if(typeof data.userInfo[0].userId == 'undefined'){
+				$scope.authorFail = 1;
+				console.log(data.userInfo[0].id);
+				console.log('third undefined');
+				}
+				else{$scope.authorFail=0;}
+                $scope.error = '';
+           })
+          .error(function (data, status) {
+				$scope.authorFail=1;
+              if (status === 404) {
+                $scope.error = 'REST server is offline!';
+              } else {
+                $scope.error = 'Error: ' + status;
+              }
+          }).then(function(){
+		  
+		  console.log('userParams');
+		  console.log($scope.userInfo);
+		  
+		  if($scope.authorFail == 1){
+		  alert('wrong username or password');
+			return;
+		  }
+		  
+		  
+         $("#loginForm").remove();
+		 console.log($("#start"));
+		 $("#start").css('visibility', 'visible');
+		 
+		 console.log($scope.tabs.length);
+		 console.log($scope.tabs[0].slug);
+		 
+		 for(i=0;i<$scope.tabs.length;i++)
+		 $("#"+$scope.tabs[i].slug).css('visibility','visible');
+		  
+		  })*/
+		 
+		 }
+		 
+  
+  </script>
+  
+	   <form id="loginForm" name="login">
+            Username: <input type="text" name="userid"/>
+            Password: <input type="password" name="pswrd"/>
+			Re-enter password: <input type="password" name="pswrd1"/>
+            <input type="submit" onclick="register(this.form)" value="Register"/>
+            <input type="reset" value="Cancel"/>
+        </form>
+
+	 </body>
+  
+</html>

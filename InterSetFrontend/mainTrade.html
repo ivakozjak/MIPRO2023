@@ -1,0 +1,151 @@
+ <html>
+  
+  <head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<script src="jquery-2.1.4.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
+<script src="ui-bootstrap-tpls-0.6.0.js"></script> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular-route.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script src="hexbin.js"></script>
+<script src="visualTrade.js"></script>
+<script src="FileSaver.min.js"></script>
+<script src="Blob.js"></script>
+<script src="som.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+<script src="wordcloud2.js"></script>
+<script src="hashmap.js"></script>
+<script src="hashtable.js"></script>
+<script src="hashset.js"></script>
+<script src="d3.chart.js"></script>
+<script src="violin.js"></script>
+<script src="q.js"></script>
+<script src="graph.js"></script>
+<script src="priorityQueue.js"></script>
+<script type="text/javascript" src="jquery.tablesorter.min.js"></script> 
+<link href='box.css' rel='stylesheet' type='text/css' />
+<link href='tablestyle.css' rel='stylesheet' type='text/css' />
+ <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.css' type='text/css' media='all' />
+ <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.js'></script>
+ <script src="js/md5.min.js"></script>
+ <script src="crossfilter.min.js"></script>
+ <script src="jquery.simplePagination.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<link type="text/css" rel="stylesheet" href="simplePagination.css"/>
+<link rel="stylesheet" type="text/css" href="distrochart.css">
+<script src="distrochart.js" charset="utf-8"></script>
+  </head>
+  
+  <body ng-app="redApp" ng-controller="redCtrl" data-ng-init="init()">
+  
+  <script>
+  
+   function checkS(form) {
+				
+				var loginLink = "http://127.0.0.1:8089/trade/login";
+                //http//localhost:8080/interset/login
+		
+				var appElement = document.querySelector('[ng-app=redApp]');
+				var $scope = angular.element(appElement).scope();
+		
+		$scope.authorFail=1;
+				var params = {};
+				params['username'] = form.userid.value;
+				console.log(form.userid.value);
+				console.log(form.pswrd.value);
+				params['password'] = md5(form.pswrd.value); 
+				var hash = md5(form.pswrd.value);
+				console.log(hash);
+				
+				
+				var options = {url: loginLink,
+               method: 'POST', 
+               data: {
+               userInfo: JSON.stringify(params)
+                        }
+                          };
+						 // console.log(Q);
+						  var promise=$scope.generalGETRequest(options);//$scope.getRedundancyInfo(options);
+						  promise.success(function (data) {
+						  console.log('received succesfully!');
+						  console.log(data);
+				$scope.userInfo=data;
+				
+				if(typeof data.userInfo == 'undefined'){
+					$scope.authorFail=1;
+					console.log(data.userInfo);
+					console.log('first undefined');
+				}
+				else if(typeof data.userInfo[0] == 'undefined'){
+					$scope.authorFail=1;
+					console.log(data.userInfo[0]);
+					console.log('second undefined');
+					}
+				else if(typeof data.userInfo[0].userId == 'undefined'){
+				$scope.authorFail = 1;
+				console.log(data.userInfo[0].id);
+				console.log('third undefined');
+				}
+				else{$scope.authorFail=0;}
+                $scope.error = '';
+           })
+          .error(function (data, status) {
+				$scope.authorFail=1;
+              if (status === 404) {
+                $scope.error = 'REST server is offline!';
+              } else {
+                $scope.error = 'Error: ' + status;
+              }
+          }).then(function(){
+		  
+		  console.log('userParams');
+		  console.log($scope.userInfo);
+		  
+		  if($scope.authorFail == 1){
+		  alert('wrong username or password');
+			return;
+		  }
+
+          sessionStorage.setItem('username', form.userid.value);
+          sessionStorage.setItem('password', md5(form.pswrd.value));
+
+                              $("#loginForm").remove();
+		 console.log($("#start"));
+		 $("#start").css('visibility', 'visible');
+		 
+		 console.log($scope.tabs.length);
+		 console.log($scope.tabs[0].slug);
+		 
+		 for(i=0;i<$scope.tabs.length;i++)
+		 $("#"+$scope.tabs[i].slug).css('visibility','visible');
+		  
+		  })
+		 
+		 }
+		 
+  
+  </script>
+	   <form id="loginForm" name="login">
+            Username: <input type="text" name="userid"/>
+            Password: <input type="password" name="pswrd"/>
+            <input type="submit" onclick="checkS(this.form)" value="Login"/>
+            <input type="reset" value="Cancel"/>
+			<a href="registerTrade.html">Register</a>
+        </form>
+  
+    <div id = "start" style = "visibility:hidden">
+      <tabset>
+        <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" select="onTabSelected(tab.slug)">
+           <div id="{{tab.slug}}" ng-include="tab.content" style="visibility:hidden"></div>
+        </tab>
+          <button style="float: right" ng-click="logOut()">LogOut</button>
+      </tabset>
+    </div>
+	
+	 </body>
+  
+</html>

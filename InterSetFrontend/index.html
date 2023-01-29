@@ -1,0 +1,139 @@
+<html>
+<head>
+<style>
+
+#menu ul, #pages ul
+{
+    width: 180px; 
+    border: 1px solid #000000 ;
+    border-top:none;
+    position: relative; font-size:0;
+    list-style: none; margin: 0; padding: 0; display:block;
+}
+
+#menu li, #pages li
+{
+    background: #C0C0C0;
+    list-style: none; margin: 0; padding: 0;
+}
+
+#ack li
+{
+    list-style: none; margin: 0; padding: 0;
+}
+
+#menu li a, #pages li a
+{
+    font: normal 12px Arial;
+    border-top: 1px solid #000000 ;
+    display: block;
+    color: black;
+    text-decoration: none;
+    line-height:26px;
+    padding-left:26px;            
+}
+#menu ul li a, #pages ul li a
+{
+    line-height:30px;
+}
+
+#menu li:hover, #pages li:hover{
+	background: #D0D0D0;
+}     
+
+#menuContainer{
+	background: #F8F8F8 ;
+}
+
+#description{
+ font: normal 16px Arial;
+ letter-spacing: 2px;
+}
+
+#irblogo {
+   width:160px; /*width of your image*/
+   height:100px; /*height of your image*/
+   margin:0; /* If you want no margin */
+   padding:0; /*if your want to padding */
+}
+
+#ijslogo {
+   width:160px; /*width of your image*/
+   height:80px; /*height of your image*/
+   margin:0; /* If you want no margin */
+   padding:0; /*if your want to padding */
+}
+</style>
+
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+</head>
+
+<body> 
+<h1 style="margin-bottom: 40px; margin-left: 300px; width: 800px; position:relative"> <center> Tool for interactive redescription set exploration </center> </h1>
+
+<div id=introduction style="width:1100px;height:1200px;position:relative">
+<div id=menuContainer style="width:280px;height:1000px;margin-right:20px;float:left;"> 
+<p><center> <b>Explore redescription set created on:</b> </center></p>
+
+	<ul id="menu" style="width: 200px;margin-bottom:100px">
+		<li><a href="mainTrade.html">Country data</a></li>
+		<li><a href="mainDBLP.html">DBLP data</a></li>
+		<li><a href="mainPhenotype.html">Phenotype data</a>
+	</ul>
+	
+	<p><center> <b>Information and resources: </b> </center> </p>	
+	<ul id="pages" style="width: 200px;margin-bottom:100px">
+	<li><a href="setup.html">How to set up the tool</a></li>
+	<li><a href="usage.html">How to use the tool</a></li>
+	<li><a href="references.html">References and links</a>
+	</ul>
+	
+	<p><center> <b>Acknowledgements: </b> </center> </p>	
+	<ul id="ack" style="width: 200px;margin-bottom:100px">
+	<li style="margin-bottom:40px"><center><a href="http://www.irb.hr"><img id="irblogo" src="IRB_logo.jpg" border="0" alt="Ruđer Bošković Institute"></a></center></li>
+	<li><center><a href="http://www.ijs.si"><img id="ijslogo" src="ijs_logo.gif" border="0" alt="Jožef Stefan Institute"></a></center></li>
+	</ul>
+	
+	<p><center> <b>Please send questions, suggestions and comments related to the tool to: </b> </center> </p>	
+	<ul id="ack" style="width: 200px;margin-bottom:40px">
+	<li><center>matej.mihelcic@irb.hr</center></li>
+	<li><center>matmih1@gmail.com</center></li>
+	</ul>
+	
+	</div>
+	
+	<div id=description style="float:left;width: 800px;position:relative;"> 
+	<p><b>Redescription mining</b> [10] is a field of <b>Knowledge Discovery</b> that aims to find different characterizations of the same or similar subsets of entities. 
+	In addition, it allows users to find <b>connections between attributes </b> from different attributes sets, called views. 
+	This is useful in many different fields of science like biology, economy, medicine etc.</p>
+	<br>
+	<p> The main purpose of the tool InterSet [9] is to allow <b>interactive, comprehensive, redescription set exploration</b>. On this page you can test the features of the tool by exploring redescriptions created on three different datasets. 
+	The first dataset contains attributes describing world countries by using general country information and country trading patterns for the year 2012 ([4,11,12]). The second dataset contains attributes describing co-authorship graph and
+	the author-conference bipartite graph ([2,3]). The third dataset contains information about the presence of phenotype properties and Clusters of Orthologoues genes in different bacterial species [1]. 
+	The tool is described in more detail in the paper "InterSet: Interactive redescription set exploration" published in the proccedings of the Discovery Science Conference (DS'16). ([9]) </p>
+	<br>
+	<h2>General data information </h2>
+	<p><b>Country data</b> contains 199 world countries. The data contains two views:</p>
+	<ul> <li> <p> General country information: contains 49 numerical attributes </p></li>
+	 <li> <p> Country trade information: contains 312 numerical attributes </p> </li> </ul>
+	 <p><b>DBLP data</b> contains 6455 authors. The data contains two views:</p>
+	<ul> <li> <p> Author-conference bipartite graph: contains 304 Boolean attributes </p> </li>
+	 <li> <p> Co-authorship graph: contains 6455 Boolean attributes </p>  </li></ul>
+	  <p><b>Phenotype data</b> contains 1336 bacterial species. The data contains two views:</p>
+	<ul> <li> <p> Phenotypes: contains 333 Boolean attributes </p> </li>
+	 <li> <p> COGs: contains 4602 Boolean attributes </p> </li> </ul>
+	
+	<p>We created 4150 redescriptions on the Country data, 3674 redescriptions on the DBLP data and 6200 redescriptions on the Phenotype data. Redescriptions were created with the CLUS-RM redescription mining algorithm [6,7], which is 
+	based on Predictive Clustering Trees [5] algorithm. We used the random forest extensions incorporated into CLUS-RM (see [8]) to obtain redescriptions on a Phenotype data.</p> 
+	<br>
+	<h2> Redescription set exploration </h2>
+	<p> The tool offers interactive redescription set exploration based on <b> entities </b> described by redescriptions in the redescription set, <b> attributes </b> contained in the redescription queries and general redescription
+	properties. The properties used in the literature are: <b> the Jaccard index, the p-value and redescription support </b> [3]. </p>
+	<br>
+	<h2>Information and resources </h2>
+	<p>In the information and resources section you can find the instructions on how to set up and use the tool. Also, there are some resources available that should help in understanding what is redescription mining,
+	why is it used and how are redescriptions created.</p>
+	</div>
+</div>
+</body>
+<html>

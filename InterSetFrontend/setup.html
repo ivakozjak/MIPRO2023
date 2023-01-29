@@ -1,0 +1,120 @@
+<html>
+ <head> 
+ <style>
+ #intro p
+{
+    font: normal 16px Arial;
+   // border-top: 1px solid #000000 ;
+    display: block;
+    color: black;
+    text-decoration: none;
+    line-height:26px;
+    padding-left:26px;            
+}
+
+#intro{
+	border-top: 1px solid #000000 ;
+}
+
+#intro h2{
+	padding-left:26px; 
+}
+
+.redtext {
+        color: red;
+}
+
+
+ </style>
+ <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+ </head>
+<h1> <center> How to set up the tool </center> </h1>
+
+<body  bgcolor="#F8F8F8"> 
+
+<div id=intro>
+<p>On this page you can find all the information on how to set up the tool INTERSET so you can use it with your own data. <br>
+The INTERSET tool is a web application. The application's client is created by using standard technologies: HTML, CSS, JavaScript. The main part is built by using <b>angular.js</b>.
+The server side of the application is created using the <b>node.js</b> framework. In order for the tool to work, one has to 
+create the appropriate <b>sqlite database</b> and fill it with required data.  The full code of the tool is available <a href="https://github.com/matmih/InterSet">Online</a>.</p>
+
+ 
+  <h2> Requirements </h2>
+ <p> In order to work, the tool requires several packages. Links to this packages are provided in the <a href="references.html"> "References and links" </a> page. </p>
+ 
+ <h2> Database structure </h2>
+ <p> The database allowing full functionality contains 23 tables. We proved the sqlite code to create each of them. </p>
+ <ul>
+  <li><code>CREATE TABLE DataTable(elementID int, attributeID int, elementValue double);</code></li>
+  <li><code>CREATE INDEX attrIndex ON DataTable (attributeID);</code></li>
+  <li><code>CREATE TABLE ElementTable(elementID int, elementName VARCHAR(255), elementDescription VARCHAR(255));</code></li> 
+  <li><code>CREATE TABLE RedescriptionAttributeTable(redescriptionID int, clauseID int, attributeID int, attributeMinValue double, attributeMaxValue double, negated int DEFAULT 0);</code></li>
+  <li><code> CREATE INDEX redIndx ON RedescriptionAttributeTable (redescriptionID);</code></li> 
+  <li><code>CREATE TABLE RedescriptionElementTable(redescriptionID int, elemetID int);</code></li>
+  <li><code> CREATE INDEX redID on RedescriptionElementTable (redescriptionID);</code></li>
+  <li><code>CREATE TABLE RedescriptionTable(redescriptionID int, redescriptionLR VARCHAR(255), redescriptionRR VARCHAR(255), redescriptionJS double, redescriptionSupport int, redescriptionAM1 double, redescriptionAM2 double,...);</code></li>
+  <li><code>CREATE TABLE AttributeTable(attributeID int, attributeName VARCHAR(255), attributeDescription VARCHAR(255), view int);</code></li>
+  <li><code>CREATE TABLE SOMClusters(userId INTEGER, elementID INTEGER, SOMClusterID INTEGER);</code></li>
+  <li><code>CREATE TABLE ElementCoverage(userId INTEGER, elementID int, redescriptionCount int);</code></li>
+  <li><code>CREATE TABLE SOMDimensions(userId INTEGER, NumRows INTEGER, NumColumns INTEGER);</code></li>
+  <li><code>CREATE TABLE MeasuresNames(measureID int, name VARCHAR(255), type VARCHAR(255), displayName VARCHAR(255), shortName VARCHAR(255));</code></li>
+  <li><code>CREATE TABLE AttributeCoocurenceTable(userId INTEGER, coocurence INTEGER, attributeID1 INTEGER, attributeID2 INTEGER);</code></li>
+  <li><code>CREATE TABLE AttributeFrequencyTable(userId INTEGER, frequency INTEGER, attributeID INTEGER, attributeName VARCHAR(255));</code></li>
+  <li><code>CREATE TABLE CategoryTable(attributeID int, categoryValue double, categoryName VARCHAR(255));</code></li>
+  <li><code>CREATE TABLE GraphTable (redId1 Integer, redId2 Integer, overlap Float);</code></li>
+  <li><code>CREATE TABLE GraphTableAttr (redId1 Integer, redId2 Integer, overlAttrap Float);</code></li>
+  <li><code>CREATE TABLE UserTable(userId INTEGER, userName VARCHAR(100), password VARCHAR(250));</code></li>
+  <li><code>CREATE TABLE ElementCoverageBack(elementID int, redescriptionCount int);</code></li>
+  <li><code>CREATE TABLE SOMClustersBack(elementID int, SOMClusterID int);</code></li>
+  <li><code>CREATE TABLE SomDimensionsBack(NumRows INTEGER, NumColumns INTEGER);</code></li>
+  <li><code>CREATE TABLE SelectedRedescriptionsElemBack(redescriptionID INTEGER);</code></li>
+  <li><code>CREATE TABLE SelectedRedescriptions(userId INTEGER, redescriptionID INTEGER);</code></li>
+  <li><code>CREATE TABLE SelectedRedescriptionsAttr(userId INTEGER, redescriptionID INTEGER);</code></li>
+  <li><code>CREATE TABLE SelectedRedescriptionsElem(userId INTEGER, redescriptionID INTEGER);</code></li>
+</ul>
+
+<p> <b>DataTable</b> contains the element value for all attributes used in redescription mining process. The <b> ElementTable</b> contains additional information about elements such as element descriptions or longer labels if available.
+The <b>RedescriptionAttributeTable</b> contains information about redescription attributes for each redescription in the redescription set. <b> For now, the RedescriptionTable must contain all fields up to and including redescriptionSupport</b>. Fields occuring after that are optional and represent additional redescription quality measures.
+Numeric attributes need to have both attributeMinValue and attributeMaxValue field defined whereas categoric attributes need to have one of those to values equal to null. The <b>RedescriptionElementTable</b> contains support sets for each redescription from the redescription set and the <b> RedescriptionTable </b>
+contains values of redescriptions measures for each redescription. The <b>AttributeTable</b> allows defining additional attribute labels or descriptions. The <b> SOMClusters</b> table contains elements contained in each SOM cluster.
+The <b>ElementCoverage</b> table contains information, for each element, on the number of redescriptions that contains it in the redescription support sets.
+The <b> SOMDimensions</b> table contains dimensions to be used to display the SOM. Table <b> MeasuresNames</b> allows entering various information about redescription measures used in the process. The displayName field is used
+to display the measure name in the global redescription information view, and the shortName is used in the corresponding list. It should be up to 3 letter abriviation to be put in the table header.
+The <b> AttributeCoocurenceTable </b> contains the co-occurrence frequencies of attributes in the redescription queries while the <b> AttributeFrequencyTable </b> contains the occurrence of attributes in redescription queries.
+The <b>CategoryTable</b> contains the information about categories for attribute containing categorical values. Each categoric value of such attributes must be assigned an integer code, that is used in the application. 
+The <b> GraphTable</b> contains pairwise entity Jaccard index for all redescriptions contained in the redescription set. Similarly, the <b> GraphTableAttr</b> contains pairwise attribute Jaccard index for all redescriptions contained in the
+redescription set. The <b>UserTable</b> contains usernames and passwords. All tables with the suffix <b>Back</b> are used to save the exact information about the pre-trained SOM map (layout, number of clusters, entity membership etc.).
+Such SOM is loaded by using <i> Load SOM Layout</i> option and can be used to load SOM created by any external tool. 
+<br>
+
+</p>
+
+
+<h2> The Self Organising Map </h2>
+
+<p> To obtain the external <b>SOM </b>, we used the <b>Kohonen package</b> for R (link available in the <a href="references.html"> "References and links" </a> page).
+As a input to the SOM, we used the element occourence in redescriptions contained in the redescription set. The user has to specify the layout to be used to train SOM.
+As an output, the SOM returns clusters embeded in the layout and element cluster membership. The tool also contains the integrated SOM that can be computed on a set containing all redescriptions or 
+on any selected subset of redescriptions.</p>
+
+<h2> Attribute cross view co-occurrence heatmap </h2>
+
+<p> The attribute heatmap uses information about <b> attributes </b> in redescription queries. This map is automatically computed from within the tool. Users need to define the dimension of the heatmap that will be displayed and used for exploration. 
+<br>
+
+<h2> Crossfilter </h2>
+
+<p> The Crossfilter uses information about redescriptions provided in the <b>RedescriptionTable</b>. The measure <b>displayNames</b> and <b>shortNames</b> should be defined in the <b>MeasuresNames</b> table.
+This information is displayed at the top of each measure filter and in the redescription table list. </p>
+
+
+<h2> Utilities </h2>
+<p> We have created a set of java functions that automatically create the file input for the <b> RedescriptionAttributeTable </b>, <b> RedescriptionElementTable </b>, <b> RedescriptionTable </b>, 
+<b>SOMClusters</b> and <b>ElementCoverage</b>. These functions are designed to work with the output of the CLUS-RM redescription mining algorithm and <b>will be extended</b> to allow automatic database
+construction.</p>
+</div>
+
+</body>
+
+
+</html>

@@ -1,0 +1,37 @@
+JavaPath = /Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java
+ClusPath = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/CLUSNHMC.jar
+OutputFolder = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/
+Input1 = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/input1Trade.arff
+Input2 = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/input2Trade.arff
+preferenceFilePath = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/preferences.txt
+numRandomRestarts = 1
+numIterations = 50
+ATreeDepth = 8
+NumTarget = 1000
+numSupplementTrees = 0
+numTrees=1
+W1SideTrees = regression
+W2SideTrees = regression
+clusteringMemory = 10000
+numNewAttr = 1
+redesSetSizeType = exact
+numRetRed = 200
+minimizeRules = yes
+joiningProcedure = no
+unguidedExpansion = yes
+allowSERed = no
+MinSupport = 5
+MaxSupport = 120
+minJS = 0.5
+minAddRedJS = 0.1
+maxPval = 0.01
+allowLeftNeg = false
+allowRightNeg = false
+allowLeftDisj = false
+allowRightDisj = false
+OutputFileName = redescriptionsGuidedExperimentalIterativeNoNetworkTestingNew
+attributeImportanceW1 = soft
+attributeImportanceW2 = soft
+importantAttributes: CRED_COVER;E/I66
+elementImportance = none
+importantElements: 

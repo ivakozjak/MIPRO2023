@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Redescription_mining_MW_Constrained">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/Redescription_mining_MW_Constrained.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

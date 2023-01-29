@@ -1,0 +1,26 @@
+.area{
+  shape-rendering: geometricPrecision;
+  fill: #ffffff !important;
+}
+.boxplot1v{
+  shape-rendering: crispEdges;
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+}
+.boxplot1v.fill{
+  fill: black;
+}
+.boxplot1v.mean, .boxplot1v.median{
+  fill: white;
+  stroke: white;
+}
+.boxplot1v.mean{
+  shape-rendering: geometricPrecision;
+}
+.violin{
+  shape-rendering: geometricPrecision;
+  fill: none !important;
+  stroke: #777;
+  stroke-width: 1px;
+}
