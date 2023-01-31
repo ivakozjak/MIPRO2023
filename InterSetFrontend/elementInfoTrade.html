@@ -3802,8 +3802,9 @@ these countries (i.e relative contribution of export,import of Primary Commoditi
 		<button id="buttonSettings" ng-model="button" ng-click="showSettingsClus()" ng-hide="!selSOMElements" style="margin-left: 30px">{{buttonText}}</button>
 		<div ng-hide="!showSettings">
 			<label title = "">numRandomRestarts: <input type="number" ng-model="numRandomRestarts" ng-init = "numRandomRestarts=1" style="width:50px"/></label>
+			<label title = "">numSupplementTrees: <input type="number" ng-model="numSupplementTrees" ng-init = "numSupplementTrees=0" style="width:50px"/></label>
 			<label title = "">numIterations: <input type="number" ng-model="numIterations" ng-init = "numIterations=50" style="width:50px"/></label>
-			<label title = "">numRetRed: <input type="number" ng-model="numRetRed" ng-init = "numRetRed=200" style="width:50px"/></label>
+			<label title = "">numRetRed: <input type="number" ng-model="numRetRed" ng-init = "numRetRed=200" style="width:50px"/></label><br>
 			<label title = "Minimal number of elements in redescription">minSupport: <input type="number" ng-model="minSupport" ng-init = "minSupport=5" style="width:50px"/></label>
 			<label title = "Maximal number of elements in redescription">maxSupport: <input type="number" ng-model="maxSupport" ng-init = "maxSupport=120" style="width:50px"/></label>
 			<label title = "Minimal Jaccard similarity index">minJS: <input type="number" ng-model="minJS" ng-init = "minJS=0.5" style="width:50px" step="0.1"/></label>

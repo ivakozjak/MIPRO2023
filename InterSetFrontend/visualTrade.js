@@ -634,6 +634,7 @@ redApp.controller('redCtrl', function ($scope, $route, $http,$timeout,$interval,
                     elementsSelected: JSON.stringify($scope.elementsSelected),
                     conditionElementsSelection: JSON.stringify($scope.conditionElementsSelection),
                     numRandomRestarts: JSON.stringify($scope.numRandomRestarts),
+                    numSupplementTrees: JSON.stringify($scope.numSupplementTrees),
                     numIterations: JSON.stringify($scope.numIterations),
                     numRetRed: JSON.stringify($scope.numRetRed),
                     minSupport: JSON.stringify($scope.minSupport),
@@ -730,6 +731,7 @@ redApp.controller('redCtrl', function ($scope, $route, $http,$timeout,$interval,
                     selectedAttrs: JSON.stringify($scope.attributesSelected),
                     selected: JSON.stringify($scope.selSOMElements),
                     numRandomRestarts: JSON.stringify($scope.numRandomRestarts),
+                    numSupplementTrees: JSON.stringify($scope.numSupplementTrees),
                     numIterations: JSON.stringify($scope.numIterations),
                     numRetRed: JSON.stringify($scope.numRetRed),
                     minSupport: JSON.stringify($scope.minSupport),
@@ -2444,6 +2446,7 @@ $scope.compHeatmapSelShared = function (params){//function to load and create he
     function initSettings() {
         $scope.buttonText = "Show settings";
         $scope.numRandomRestarts = 1;
+        $scope.numSupplementTrees = 0;
         $scope.numIterations = 50;
         $scope.numRetRed = 200;
         $scope.minSupport = 5;
@@ -13589,6 +13592,7 @@ redApp.directive('attributeRedescriptions',function( $compile){
          function initSettings() {
              scope.buttonText = "Show settings";
              scope.numRandomRestarts = 1;
+             scope.numSupplementTrees = 0;
              scope.numIterations = 50;
              scope.numRetRed = 200;
              scope.minSupport = 5;
