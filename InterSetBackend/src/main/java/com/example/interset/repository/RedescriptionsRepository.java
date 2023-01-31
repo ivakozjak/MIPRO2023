@@ -699,6 +699,7 @@ return res;
         JSONArray redescriptions = new JSONArray();
         JSONArray somElements = new JSONArray();
         JSONArray attributeDescriptions = new JSONArray();
+        JSONArray attributesSelected = new JSONArray();
         JSONObject temp = new JSONObject();
         try{
             Connection conn = connect(database.databaseName);
@@ -767,13 +768,19 @@ return res;
                     temp = new JSONObject();
                 }
                 res.put("attributeDescriptions", attributeDescriptions);
+
+                ResultSet attributesSelectedQuery = stmt.executeQuery("SELECT attrName FROM SelectedAttributes WHERE userId = " + userId);
+                while(attributesSelectedQuery.next())
+                {
+                    attributesSelected.add(attributesSelectedQuery.getString("attrName"));
+                }
+                res.put("attributesSelected", attributesSelected);
             }
             conn.close();
         }
         catch(SQLException e){
             System.out.println(e.getMessage());
         }
-
         //System.out.println(res); 
 return res;
     }
@@ -1773,13 +1780,19 @@ return res;
         JSONParser jsonParser = new JSONParser();
         Long userId = null;
         JSONArray sharedData = new JSONArray();
+        JSONArray selectedAttrs = new JSONArray();
+        JSONArray selectedElems = new JSONArray();
         try {
             userId = (Long) jsonParser.parse(String.valueOf(request.get("userId")));
             sharedData = (JSONArray) jsonParser.parse(String.valueOf(request.get("sharedData")));
+            selectedAttrs = (JSONArray) jsonParser.parse(String.valueOf(request.get("selectedAttrs")));
+            selectedElems = (JSONArray) jsonParser.parse(String.valueOf(request.get("selectedElems")));
         } catch (ParseException e) {
             e.printStackTrace();
         }
         System.out.println("shared data: " + sharedData);
+        System.out.println("selected Attrs: " + selectedAttrs);
+        System.out.println("selected Elems: " + selectedElems);
         try{
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
@@ -1787,6 +1800,8 @@ return res;
             if(conn != null) {
                 conn.setAutoCommit(false);
                 stmt.execute("DELETE FROM SelectedRedescriptions where userId = "+userId);
+                stmt.execute("DELETE FROM SelectedAttributes where userId = "+userId);
+                stmt.execute("DELETE FROM SelectedElements where userId = "+userId);
 
                 Iterator<Long> iterator = sharedData.iterator();
                 while(iterator.hasNext()){
@@ -1794,6 +1809,29 @@ return res;
                     PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SelectedRedescriptions VALUES (?,?)");
                     insertPstmt.setLong(1, userId);
                     insertPstmt.setLong(2, sd);
+                    insertPstmt.executeUpdate();
+                }
+
+                Iterator<String> iterator2 = selectedAttrs.iterator();
+                while(iterator2.hasNext()){
+                    String name = iterator2.next();
+                    PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SelectedAttributes VALUES (?,?)");
+                    insertPstmt.setString(1, name);
+                    insertPstmt.setLong(2, userId);
+                    insertPstmt.executeUpdate();
+                }
+
+                Iterator<JSONObject> iterator3 = selectedElems.iterator();
+                while(iterator3.hasNext()){
+                    JSONObject element = iterator3.next();
+                    String name = "";
+                    ResultSet findElementName = stmt.executeQuery("SELECT elementName FROM ElementTable WHERE elementDescription = "+"\"" +element.get("name")+"\"");
+                    while (findElementName.next()) {
+                        name = findElementName.getString("elementName");
+                    }
+                    PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SelectedElements VALUES (?,?)");
+                    insertPstmt.setString(1, name);
+                    insertPstmt.setLong(2, userId);
                     insertPstmt.executeUpdate();
                 }
 
@@ -2267,7 +2305,6 @@ return res;
         else attribute1=Integer.parseInt(request.get("attribute1"));
         if(request.get("attribute2")==null) attribute2 = 0;
         else attribute2=Integer.parseInt(request.get("attribute2"));
-
         JSONObject res = new JSONObject();
         JSONArray redescriptions = new JSONArray();
         JSONArray redescriptionAttrs = new JSONArray();
@@ -2275,6 +2312,8 @@ return res;
         JSONArray attAssoc1 = new JSONArray();
         JSONArray attAssoc2 = new JSONArray();
         JSONObject temp = new JSONObject();
+        JSONArray elementsSelected = new JSONArray();
+        JSONArray elementsDescriptionSelected = new JSONArray();
         try{
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
@@ -2374,6 +2413,22 @@ return res;
                 }
                 res.put("redescriptionAttrs", redescriptionAttrs);
 
+                ResultSet elementsSelectedQuery = stmt.executeQuery("SELECT elemName FROM SelectedElements WHERE userId = " + userId);
+                while(elementsSelectedQuery.next())
+                {
+                    elementsSelected.add(elementsSelectedQuery.getString("elemName"));
+                }
+                res.put("elementsSelected", elementsSelected);
+
+                for(int i=1; i<elementsSelected.size(); i++) {
+                    ResultSet elementsDescriptionSelectedQuery = stmt.executeQuery("SELECT elementDescription FROM ElementTable WHERE elementName = "+"\""+elementsSelected.get(i)+"\"");
+                    while(elementsDescriptionSelectedQuery.next())
+                    {
+                        elementsDescriptionSelected.add(elementsDescriptionSelectedQuery.getString("elementDescription"));
+                    }
+                }
+                res.put("elementsDescriptionSelected", elementsDescriptionSelected);
+
             }
             conn.close();
         }
@@ -2389,7 +2444,6 @@ return res;
         JSONObject res = new JSONObject();
         JSONObject temp = new JSONObject();
         JSONArray redescriptionArray = new JSONArray();
-        //"\nulazi u clusrm i atributi su:" + request.get("selected"));
         String selected = request.get("selected");
         String[] selectedArr = selected.split(",");
         selectedArr[0] = selectedArr[0].substring(2, selectedArr[0].length() - 1);
@@ -2428,7 +2482,14 @@ return res;
                     selectedAttrs += ";";
             }
         }
+        String elementsSelected = request.get("elementsSelected");
+        String importantElements = "";
+        if(!elementsSelected.equals(""))
+            importantElements = elementsSelected.substring(1, elementsSelected.length() - 1);
+        String conditionElementsSelection = request.get("conditionElementsSelection");
+        String elementImportance = conditionElementsSelection.substring(1, conditionElementsSelection.length() - 1);
         Double numRandomRestarts = Double.parseDouble(request.get("numRandomRestarts"));
+        Double numSupplementTrees = Double.parseDouble(request.get("numSupplementTrees"));
         Double numIterations = Double.parseDouble(request.get("numIterations"));
         Double numRetRed = Double.parseDouble(request.get("numRetRed"));
         Double minSupport = Double.parseDouble(request.get("minSupport"));
@@ -2452,6 +2513,9 @@ return res;
                 }
                 else if (line.contains("numRandomRestarts")) {
                     newLines.add(line.replace(line, "numRandomRestarts = " + numRandomRestarts.intValue()));
+                }
+                else if (line.contains("numSupplementTrees")) {
+                    newLines.add(line.replace(line, "numSupplementTrees = " + numSupplementTrees.intValue()));
                 }
                 else if (line.contains("numIterations")) {
                     newLines.add(line.replace(line, "numIterations = " + numIterations.intValue()));
@@ -2496,11 +2560,11 @@ return res;
                     importatntAttrs = true;
                 }
                 else if (line.contains("elementImportance")) {
-                    newLines.add(line.replace(line, "elementImportance = none"));
+                    newLines.add(line.replace(line, "elementImportance = " + elementImportance));
                     importatntAttrs = true;
                 }
                 else if (line.contains("importantElements")) {
-                    newLines.add(line.replace(line, "importantElements: "));
+                    newLines.add(line.replace(line, "importantElements: " + importantElements));
                     importatntAttrs = true;
                 }else {
                     newLines.add(line);
@@ -2807,17 +2871,25 @@ return res;
 
         JSONParser jsonParser = new JSONParser();
         String conditionElements= "";
+        String conditionw1selection= "";
+        String conditionw2selection= "";
+        String selectedAttrs = "";
         JSONArray selected = new JSONArray();
         JSONObject res = new JSONObject();
         JSONObject temp = new JSONObject();
         JSONArray redescriptionArray = new JSONArray();
         String allowLeftNeg="false", allowRightNeg="false", allowLeftDisj="false", allowRightDisj="false";
-        Double numRandomRestarts = 1.0, numIterations = 50.0, numRetRed = 200.0, minSupport = 5.0, maxSupport = 120.0, minJS = 0.5, maxPval = 0.01;
+        Double numRandomRestarts = 1.0, numSupplementTrees = 0.0, numIterations = 50.0, numRetRed = 200.0, minSupport = 5.0, maxSupport = 120.0, minJS = 0.5, maxPval = 0.01;
         try {
+            selectedAttrs = String.valueOf(request.get("selectedAttrs"));
             conditionElements = String.valueOf(request.get("conditionElements"));
+            conditionw1selection = String.valueOf(request.get("conditionw1selection"));
+            conditionw2selection = String.valueOf(request.get("conditionw2selection"));
             selected = (JSONArray) jsonParser.parse(String.valueOf(request.get("selected")));
             if(!String.valueOf(request.get("numRandomRestarts")).equals("null"))
                 numRandomRestarts = Double.parseDouble(String.valueOf(request.get("numRandomRestarts")));
+            if(!String.valueOf(request.get("numSupplementTrees")).equals("null"))
+                numSupplementTrees = Double.parseDouble(String.valueOf(request.get("numSupplementTrees")));
             if(!String.valueOf(request.get("numIterations")).equals("null"))
                 numIterations = Double.parseDouble(String.valueOf(request.get("numIterations")));
             if(!String.valueOf(request.get("numRetRed")).equals("null"))
@@ -2847,7 +2919,6 @@ return res;
 
         //System.out.println("condition: " + condition);
         //System.out.println(selected);
-
         String selectedElems = "";
         String[] selectedElemsArray = new String[selected.size()];
         int countEl = 0;
@@ -2880,6 +2951,40 @@ return res;
             //System.out.println(myLong.intValue());
         }
         listOfElementsCluster.add(ElementsCluster);
+        String selectedAttributes = "";
+        String conditionw1 = "none";
+        String conditionw2 = "none";
+        if(!selectedAttrs.equals("[]")) {
+            String[] selectedArr = selectedAttrs.split(",");
+            selectedArr[0] = selectedArr[0].substring(2, selectedArr[0].length() - 1);
+            selectedAttributes = selectedArr[0];
+            for (int i = 1; i < selectedArr.length; i++) {
+                if (i == selectedArr.length - 1)
+                    selectedArr[i] = selectedArr[i].substring(1, selectedArr[i].length() - 2);
+                else selectedArr[i] = selectedArr[i].substring(1, selectedArr[i].length() - 1);
+                selectedAttributes += ";" + selectedArr[i];
+            }
+            conditionw1 = conditionw1selection.substring(1, conditionw1selection.length() - 1);
+            if (conditionw1.equals("none")) {
+                selectedAttributes = "";
+                for (int i = 1; i < selectedArr.length; i++) {
+                    selectedAttributes += selectedArr[i];
+                    i++;
+                    if (i < selectedArr.length)
+                        selectedAttributes += ";";
+                }
+            }
+            conditionw2 = conditionw2selection.substring(1, conditionw2selection.length() - 1);
+            if (conditionw2.equals("none")) {
+                selectedAttributes = "";
+                for (int i = 0; i < selectedArr.length; i++) {
+                    selectedAttributes += selectedArr[i];
+                    i++;
+                    if (i < selectedArr.length)
+                        selectedAttributes += ";";
+                }
+            }
+        }
 
         boolean elementImportance = false, importantElements = false, check1 = false, check2 = false;
         String path_file = "/Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set";
@@ -2894,6 +2999,9 @@ return res;
                 }
                 else if (line.contains("numRandomRestarts")) {
                     newLines.add(line.replace(line, "numRandomRestarts = " + numRandomRestarts.intValue()));
+                }
+                else if (line.contains("numSupplementTrees")) {
+                    newLines.add(line.replace(line, "numSupplementTrees = " + numSupplementTrees.intValue()));
                 }
                 else if (line.contains("numIterations")) {
                     newLines.add(line.replace(line, "numIterations = " + numIterations.intValue()));
@@ -2934,13 +3042,13 @@ return res;
                     importantElements = true;
                 }
                 else if (line.contains("attributeImportanceW1")) {
-                    newLines.add(line.replace(line, "attributeImportanceW1 = none"));
+                    newLines.add(line.replace(line, "attributeImportanceW1 = " + conditionw1));
                 }
                 else if (line.contains("attributeImportanceW2")) {
-                    newLines.add(line.replace(line, "attributeImportanceW2 = none"));
+                    newLines.add(line.replace(line, "attributeImportanceW2 = " + conditionw2));
                 }
                 else if (line.contains("importantAttributes")) {
-                    newLines.add(line.replace(line, "importantAttributes: "));
+                    newLines.add(line.replace(line, "importantAttributes: " + selectedAttributes));
                 }else {
                     newLines.add(line);
                 }
