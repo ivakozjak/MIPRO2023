@@ -8,9 +8,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -1162,7 +1160,10 @@ return res;
                     Object[] tmpArr1 = new Object[5];
                     tmpArr1[0]=RedAttributeIntervals.getInt("attributeID");
                     tmpArr1[1]=RedAttributeIntervals.getInt("attributeMinValue");
-                    tmpArr1[2]=RedAttributeIntervals.getDouble("attributeMaxValue");
+                    if(RedAttributeIntervals.getDouble("attributeMaxValue") == Types.NULL)
+                        tmpArr1[2]="null";
+                    else
+                        tmpArr1[2]=RedAttributeIntervals.getDouble("attributeMaxValue");
                     tmpArr1[3]=RedAttributeIntervals.getDouble("negated");
                     tmpArr1[4]=RedAttributeIntervals.getInt("clauseID");
                     temp.put("id", count);
@@ -2580,8 +2581,16 @@ return res;
         }
 
         try {
-            System.out.println("try catch pokretanje clusrm algoritma");
-            Process proc = Runtime.getRuntime().exec("/Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java -jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/out/artifacts/RMWConstrainedAdaptive_jar/RMWConstrainedAdaptive.jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set");
+            //System.out.println("try catch pokretanje clusrm algoritma");
+            //Process proc = Runtime.getRuntime().exec("/Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java -jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/out/artifacts/RMWConstrainedAdaptive_jar/RMWConstrainedAdaptive.jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set");
+            //proc.waitFor();
+            ProcessBuilder pb = new ProcessBuilder("/Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java", "-Xmx10000m", "-jar", "/Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/out/artifacts/RMWConstrainedAdaptive_jar/RMWConstrainedAdaptive.jar", "/Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set");
+            pb.redirectErrorStream(true);
+            Process proc = pb.start();//Runtime.getRuntime().exec("C:\\Program Files\\Java\\jdk-16.0.1\\bin\\java.exe -Xmx10000m -jar C:\\Users\\Matej\\Downloads\\MIPRO2023-main\\MIPRO2023-main\\RMWConstrainedAdaptive\\out\\artifacts\\RMWConstrainedAdaptive_jar\\RMWConstrainedAdaptive.jar C:\\Users\\Matej\\Downloads\\MIPRO2023-main\\MIPRO2023-main\\RMWConstrainedAdaptive\\SettingsNoNet.set");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null)
+                System.out.println("" + line+"\n");
             proc.waitFor();
         }
         catch(Throwable e){
@@ -2760,7 +2769,7 @@ return res;
                     attributeNameAndDescr = new String[numberOfRedescriptions];
                     for(int j=0; j<numberOfRedescriptions;j++) {
                         for (int i = 0; i < coveredAll.get(j).length; i++) {
-                            ResultSet ElementId = stmt.executeQuery("SELECT elementID from ElementTable WHERE elementName = " + coveredAll.get(j)[i]);
+                            ResultSet ElementId = stmt.executeQuery("SELECT elementID from ElementTable WHERE elementName = "+"\""+coveredAll.get(j)[i]+"\"");
                             while (ElementId.next()) {
                                 element = ElementId.getInt("elementID");
                             }
@@ -3062,8 +3071,16 @@ return res;
         }
 
         try {
-            System.out.println("try catch pokretanje clusrm algoritma");
-            Process proc = Runtime.getRuntime().exec("/Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java -jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/out/artifacts/RMWConstrainedAdaptive_jar/RMWConstrainedAdaptive.jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set");
+            //System.out.println("try catch pokretanje clusrm algoritma");
+            //Process proc = Runtime.getRuntime().exec("/Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java -jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/out/artifacts/RMWConstrainedAdaptive_jar/RMWConstrainedAdaptive.jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set");
+            //proc.waitFor();
+            ProcessBuilder pb = new ProcessBuilder("/Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java", "-Xmx10000m", "-jar", "/Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/out/artifacts/RMWConstrainedAdaptive_jar/RMWConstrainedAdaptive.jar", "/Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set");
+            pb.redirectErrorStream(true);
+            Process proc = pb.start();//Runtime.getRuntime().exec("C:\\Program Files\\Java\\jdk-16.0.1\\bin\\java.exe -Xmx10000m -jar C:\\Users\\Matej\\Downloads\\MIPRO2023-main\\MIPRO2023-main\\RMWConstrainedAdaptive\\out\\artifacts\\RMWConstrainedAdaptive_jar\\RMWConstrainedAdaptive.jar C:\\Users\\Matej\\Downloads\\MIPRO2023-main\\MIPRO2023-main\\RMWConstrainedAdaptive\\SettingsNoNet.set");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null)
+                System.out.println("" + line+"\n");
             proc.waitFor();
         }
         catch(Throwable e){
@@ -3122,7 +3139,8 @@ return res;
                     }
                 }
                 if(w1R!="" && w2R!="" && JS!="" && pValue!="" && intersection!="" && next==true) {
-                    int countEqual = 0;
+                    boolean check=true;
+                    /*int countEqual = 0;
                     boolean check = false;
                     if(condition.equals("none")) check=true;
                     else if(condition.equals("soft")) {
@@ -3145,7 +3163,7 @@ return res;
                             }
                         }
                         if(countEqual== selectedElemsArray.length) check=true;
-                    }
+                    }*/
                     //System.out.println(countEqual);
                     if(check==true) {
                         numberOfRedescriptions++;
@@ -3221,7 +3239,7 @@ return res;
                     }
                     for(int j=0; j<numberOfRedescriptions;j++) {
                         for (int i = 0; i < coveredAll.get(j).length; i++) {
-                            ResultSet ElementId = stmt.executeQuery("SELECT elementID, elementDescription from ElementTable WHERE elementName = " + coveredAll.get(j)[i]);
+                            ResultSet ElementId = stmt.executeQuery("SELECT elementID, elementDescription from ElementTable WHERE elementName = "+"\""+coveredAll.get(j)[i]+"\"");
                             while (ElementId.next()) {
                                 element = ElementId.getInt("elementID");
                                 elementDescription = ElementId.getString("elementDescription");
@@ -3777,8 +3795,14 @@ return res;
                                             insertAtr.setInt(1, maxID+1);
                                             insertAtr.setInt(2, numDis);
                                             insertAtr.setInt(3, atId);
-                                            insertAtr.setDouble(4, Double.parseDouble(aTT1[0]));
-                                            insertAtr.setDouble(5, Double.parseDouble(aTT1[1]));
+                                            if(aTT1[0]!=null)
+                                                insertAtr.setDouble(4, Double.parseDouble(aTT1[0]));
+                                            else
+                                                insertAtr.setNull(4, Types.NULL);
+                                            if(aTT1[1]!=null)
+                                                insertAtr.setDouble(5, Double.parseDouble(aTT1[1]));
+                                            else
+                                                insertAtr.setNull(5, Types.NULL);
                                             insertAtr.setInt(6, negated);
                                             insertAtr.executeUpdate();
                                         }
@@ -3793,8 +3817,14 @@ return res;
                                             insertAtr.setInt(1, maxID+1);
                                             insertAtr.setInt(2, numDis);
                                             insertAtr.setInt(3, atId);
-                                            insertAtr.setDouble(4, Double.parseDouble(aTT1[0]));
-                                            insertAtr.setDouble(5, Double.parseDouble(aTT1[1]));
+                                            if(aTT1[0]!=null)
+                                                insertAtr.setDouble(4, Double.parseDouble(aTT1[0]));
+                                            else
+                                                insertAtr.setNull(4, Types.NULL);
+                                            if(aTT1[1]!=null)
+                                                insertAtr.setDouble(5, Double.parseDouble(aTT1[1]));
+                                            else
+                                                insertAtr.setNull(5, Types.NULL);
                                             insertAtr.setInt(6, negated);
                                             insertAtr.executeUpdate();
                                         }

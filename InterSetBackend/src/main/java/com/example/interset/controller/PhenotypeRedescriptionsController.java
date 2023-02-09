@@ -168,7 +168,7 @@ public class PhenotypeRedescriptionsController {
         redescriptionsService.sharedData(request, DataBaseEnum.PHENOTYPE);
     }
 
-    @GetMapping(value="/sharedDataGet")
+    @GetMapping(value="/sharedData")
     public JSONObject sharedDataGet(@RequestParam Map<String,String> request){
         return redescriptionsService.sharedDataGet(request, DataBaseEnum.PHENOTYPE);
     }

@@ -168,7 +168,7 @@ public class DBLPRedescriptionsController {
         redescriptionsService.sharedData(request, DataBaseEnum.DBL);
     }
 
-    @GetMapping(value="/sharedDataGet")
+    @GetMapping(value="/sharedData")
     public JSONObject sharedDataGet(@RequestParam Map<String,String> request){
         return redescriptionsService.sharedDataGet(request, DataBaseEnum.DBL);
     }
