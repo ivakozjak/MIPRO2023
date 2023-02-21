@@ -33,27 +33,26 @@ public class RedescriptionsRepository {
         Connection conn = DriverManager.getConnection(url);
         return conn;
     }
-    public Object somData(JSONObject request, DataBaseEnum database){
+
+    public Object somData(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         Long userId = null, numRows = null, numCols = null;
         String numRowsString = "", numColsString = "";
         JSONArray somDat = new JSONArray();
-        JSONArray  elCov = new JSONArray();
-        JSONArray  selReds = new JSONArray();
+        JSONArray elCov = new JSONArray();
+        JSONArray selReds = new JSONArray();
         try {
             userId = (Long) jsonParser.parse(String.valueOf(request.get("userId")));
-            if(jsonParser.parse(String.valueOf(request.get("numRows"))) instanceof String) {
+            if (jsonParser.parse(String.valueOf(request.get("numRows"))) instanceof String) {
                 numRowsString = (String) jsonParser.parse(String.valueOf(request.get("numRows")));
                 numRows = Long.parseLong(numRowsString);
-            }
-            else if (jsonParser.parse(String.valueOf(request.get("numRows"))) instanceof Long)
+            } else if (jsonParser.parse(String.valueOf(request.get("numRows"))) instanceof Long)
                 numRows = (Long) jsonParser.parse(String.valueOf(request.get("numRows")));
 
-            if(jsonParser.parse(String.valueOf(request.get("numCols"))) instanceof String) {
+            if (jsonParser.parse(String.valueOf(request.get("numCols"))) instanceof String) {
                 numColsString = (String) jsonParser.parse(String.valueOf(request.get("numCols")));
                 numCols = Long.parseLong(numColsString);
-            }
-            else if (jsonParser.parse(String.valueOf(request.get("numCols"))) instanceof Long)
+            } else if (jsonParser.parse(String.valueOf(request.get("numCols"))) instanceof Long)
                 numCols = (Long) jsonParser.parse(String.valueOf(request.get("numCols")));
 
             somDat = (JSONArray) jsonParser.parse(String.valueOf(request.get("somDat")));
@@ -62,16 +61,16 @@ public class RedescriptionsRepository {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 conn.setAutoCommit(false);
-                stmt.execute("DELETE FROM SOMClusters where userId = "+userId);
-                stmt.execute("DELETE FROM SomDimensions where userId = "+userId);
-                stmt.execute("DELETE FROM ElementCoverage where userId = "+userId);
-                stmt.execute("DELETE FROM SelectedRedescriptionsElem where userId = "+userId);
+                stmt.execute("DELETE FROM SOMClusters where userId = " + userId);
+                stmt.execute("DELETE FROM SomDimensions where userId = " + userId);
+                stmt.execute("DELETE FROM ElementCoverage where userId = " + userId);
+                stmt.execute("DELETE FROM SelectedRedescriptionsElem where userId = " + userId);
 
                 PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SomDimensions VALUES (?,?,?)");
                 insertPstmt.setLong(1, userId);
@@ -82,19 +81,18 @@ public class RedescriptionsRepository {
                 JSONArray somClusters = somDat;
                 Iterator<JSONObject> iterator = somClusters.iterator();
                 Integer i = 0;
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     i++;
                     JSONObject cluster = iterator.next();
                     JSONObject neighbors = (JSONObject) cluster.get("neighbors");
                     JSONArray nbDefaultList = (JSONArray) neighbors.get("default");
-                    if(nbDefaultList != null)
-                    {
+                    if (nbDefaultList != null) {
                         Iterator<JSONObject> iterator1 = nbDefaultList.iterator();
-                        while(iterator1.hasNext()){
+                        while (iterator1.hasNext()) {
                             JSONObject nbDefault = iterator1.next();
                             insertPstmt = conn.prepareStatement("INSERT INTO SomClusters VALUES (?,?,?)");
                             insertPstmt.setLong(1, userId);
-                            insertPstmt.setString(2, (String)nbDefault.get("id"));
+                            insertPstmt.setString(2, (String) nbDefault.get("id"));
                             insertPstmt.setInt(3, i);
                             insertPstmt.executeUpdate();
                         }
@@ -104,7 +102,7 @@ public class RedescriptionsRepository {
 
                 JSONArray elementCoverage = elCov;
                 Iterator<JSONObject> iterator2 = elementCoverage.iterator();
-                while(iterator2.hasNext()){
+                while (iterator2.hasNext()) {
                     JSONObject element = iterator2.next();
                     insertPstmt = conn.prepareStatement("INSERT INTO ElementCoverage VALUES (?,?,?)");
                     insertPstmt.setLong(1, userId);
@@ -114,7 +112,7 @@ public class RedescriptionsRepository {
                 }
 
                 Iterator<Long> iterator3 = selReds.iterator();
-                while(iterator3.hasNext()){
+                while (iterator3.hasNext()) {
                     insertPstmt = conn.prepareStatement("INSERT INTO SelectedRedescriptionsElem VALUES (?,?)");
                     insertPstmt.setLong(1, userId);
                     insertPstmt.setLong(2, iterator3.next());
@@ -124,20 +122,19 @@ public class RedescriptionsRepository {
                 conn.commit();
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         return null;
     }
 
-    public Object somDataBack(JSONObject request, DataBaseEnum database){
+    public Object somDataBack(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         Integer NumRows = null, NumCols = null;
         JSONArray somDat = new JSONArray();
-        JSONArray  elCov = new JSONArray();
-        JSONArray  selReds = new JSONArray();
+        JSONArray elCov = new JSONArray();
+        JSONArray selReds = new JSONArray();
         try {
             NumRows = (Integer) jsonParser.parse(String.valueOf(request.get("NumRows")));
             NumCols = (Integer) jsonParser.parse(String.valueOf(request.get("NumCols")));
@@ -147,11 +144,11 @@ public class RedescriptionsRepository {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 conn.setAutoCommit(false);
 
                 stmt.execute("DELETE FROM SOMClustersBack");
@@ -167,15 +164,14 @@ public class RedescriptionsRepository {
                 JSONArray somClusters = somDat;
                 Iterator<JSONObject> iterator = somClusters.iterator();
                 Integer i = 0;
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     i++;
                     JSONObject cluster = iterator.next();
                     JSONObject neighbors = (JSONObject) cluster.get("neighbors");
                     JSONArray nbDefaultList = (JSONArray) neighbors.get("default");
-                    if(nbDefaultList != null)
-                    {
+                    if (nbDefaultList != null) {
                         Iterator<JSONObject> iterator1 = nbDefaultList.iterator();
-                        while(iterator1.hasNext()){
+                        while (iterator1.hasNext()) {
                             JSONObject nbDefault = iterator1.next();
                             insertPstmt = conn.prepareStatement("INSERT INTO SomClustersBack VALUES (?,?)");
                             insertPstmt.setInt(1, (Integer) nbDefault.get("id"));
@@ -187,7 +183,7 @@ public class RedescriptionsRepository {
 
                 JSONArray elementCoverage = elCov;
                 Iterator<JSONObject> iterator2 = elementCoverage.iterator();
-                while(iterator2.hasNext()){
+                while (iterator2.hasNext()) {
                     JSONObject element = iterator2.next();
                     insertPstmt = conn.prepareStatement("INSERT INTO ElementCoverageBack VALUES (?,?)");
                     insertPstmt.setInt(1, (Integer) element.get("name"));
@@ -196,7 +192,7 @@ public class RedescriptionsRepository {
                 }
 
                 Iterator<Integer> iterator3 = selReds.iterator();
-                while(iterator3.hasNext()){
+                while (iterator3.hasNext()) {
                     insertPstmt = conn.prepareStatement("INSERT INTO SelectedRedescriptionsElemBack VALUES (?)");
                     insertPstmt.setInt(1, iterator3.next());
                     insertPstmt.executeUpdate();
@@ -205,15 +201,14 @@ public class RedescriptionsRepository {
                 conn.commit();
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         return null;
     }
 
-    public JSONObject login(JSONObject request, DataBaseEnum database){
+    public JSONObject login(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         JSONObject userInfo = null;
         try {
@@ -222,19 +217,18 @@ public class RedescriptionsRepository {
             e.printStackTrace();
         }
         JSONObject res = new JSONObject();
-        try{
+        try {
             //System.out.println(request);
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
             JSONArray userInfoList = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                ResultSet rs = stmt.executeQuery("SELECT userId, userName from UserTable where userName = "+"\""+userInfo.get("username")+"\""+ "AND password = "+"\""+userInfo.get("password")+"\"");
-                while(rs.next())
-                {
-                    
+                ResultSet rs = stmt.executeQuery("SELECT userId, userName from UserTable where userName = " + "\"" + userInfo.get("username") + "\"" + "AND password = " + "\"" + userInfo.get("password") + "\"");
+                while (rs.next()) {
+
                     temp.put("userId", rs.getInt("userId"));
                     temp.put("userName", rs.getString("userName"));
                     userInfoList.add(temp);
@@ -243,16 +237,15 @@ public class RedescriptionsRepository {
                 res.put("userInfo", userInfoList);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
-    public JSONObject checkRegInfo(JSONObject request, DataBaseEnum database){
+    public JSONObject checkRegInfo(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         JSONObject userInfo = null;
         try {
@@ -264,21 +257,20 @@ return res;
         JSONArray maxIdArr = new JSONArray();
         JSONArray countArr = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 ResultSet userMaxId = stmt.executeQuery("SELECT MAX(userId) as maxId from UserTable");
-                while(userMaxId.next()){
+                while (userMaxId.next()) {
                     System.out.println(userMaxId.getInt("maxId"));
                     temp.put("maxId", userMaxId.getInt("maxId"));
                     maxIdArr.add(temp);
                     temp = new JSONObject();
                 }
-                ResultSet countSet = stmt.executeQuery("SELECT count(*) as count from UserTable where userName =  "+"\""+userInfo.get("username")+"\"");
-                while(countSet.next())
-                {
+                ResultSet countSet = stmt.executeQuery("SELECT count(*) as count from UserTable where userName =  " + "\"" + userInfo.get("username") + "\"");
+                while (countSet.next()) {
                     //System.out.println(countSet.getInt("count"));
                     temp.put("count", countSet.getInt("count"));
                     countArr.add(temp);
@@ -288,16 +280,15 @@ return res;
                 res.put("count", countArr);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
-    public Object register(JSONObject request, DataBaseEnum database){
+    public Object register(JSONObject request, DataBaseEnum database) {
         Long maxuid = null;
         JSONParser jsonParser = new JSONParser();
         JSONObject userInfo = null;
@@ -307,11 +298,10 @@ return res;
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             Connection conn = connect(database.databaseName);
 
-            if(conn != null)
-            {
+            if (conn != null) {
                 conn.setAutoCommit(false);
 
                 PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO UserTable VALUES (?,?,?)");
@@ -323,27 +313,25 @@ return res;
                 conn.commit();
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         return null;
     }
 
-    public JSONObject redescriptionElement(DataBaseEnum database){
+    public JSONObject redescriptionElement(DataBaseEnum database) {
         JSONObject res = new JSONObject();
         JSONObject temp = new JSONObject();
         JSONArray array = new JSONArray();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("SELECT redescriptionID,elemetID from RedescriptionElementTable");
-                while(rs.next())
-                {
+                while (rs.next()) {
                     temp.put("id", rs.getInt("redescriptionID"));
                     temp.put("elementID", rs.getInt("elemetID"));
                     array.add(temp);
@@ -354,8 +342,7 @@ return res;
                 res.put("redElems", array);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -363,20 +350,19 @@ return res;
         return res;
     }
 
-    public JSONObject redundancyAll(DataBaseEnum database){
+    public JSONObject redundancyAll(DataBaseEnum database) {
         JSONObject res = new JSONObject();
         JSONObject temp = new JSONObject();
         JSONArray redAttr = new JSONArray();
         JSONArray redElems = new JSONArray();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet redInfo = stmt.executeQuery("SELECT redescriptionID,elemetID FROM RedescriptionElementTable");
-                while(redInfo.next())
-                {
+                while (redInfo.next()) {
                     temp.put("id", redInfo.getInt("redescriptionID"));
                     temp.put("elementID", redInfo.getInt("elemetID"));
                     redElems.add(temp);
@@ -385,8 +371,7 @@ return res;
                 res.put("redElems", redElems);
 
                 ResultSet attInfo = stmt.executeQuery("SELECT DISTINCT redescriptionID,attributeID FROM RedescriptionAttributeTable");
-                while(attInfo.next())
-                {
+                while (attInfo.next()) {
                     temp.put("id", attInfo.getInt("redescriptionID"));
                     temp.put("attributeID", attInfo.getInt("attributeID"));
                     redAttr.add(temp);
@@ -395,28 +380,26 @@ return res;
                 res.put("redAttr", redAttr);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
-    public JSONObject redundancySupp(DataBaseEnum database){
+    public JSONObject redundancySupp(DataBaseEnum database) {
         JSONObject res = new JSONObject();
         JSONArray redElems = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("SELECT redescriptionID,elemetID from RedescriptionElementTable");
-                while(rs.next())
-                {
+                while (rs.next()) {
                     temp.put("id", rs.getInt("redescriptionID"));
                     temp.put("elementID", rs.getInt("elemetID"));
                     redElems.add(temp);
@@ -425,28 +408,26 @@ return res;
                 res.put("redElems", redElems);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
-    public JSONObject redundancyAttrs(DataBaseEnum database){
+    public JSONObject redundancyAttrs(DataBaseEnum database) {
         JSONObject res = new JSONObject();
         JSONArray redAttrs = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("SELECT redescriptionID,attributeID from RedescriptionAttributeTable");
-                while(rs.next())
-                {
+                while (rs.next()) {
                     temp.put("id", rs.getInt("redescriptionID"));
                     temp.put("attributeID", rs.getInt("attributeID"));
                     redAttrs.add(temp);
@@ -455,16 +436,15 @@ return res;
                 res.put("redAttrs", redAttrs);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
-    public JSONObject redundancyinfo(Map<String,String> request, DataBaseEnum database){
+    public JSONObject redundancyinfo(Map<String, String> request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         JSONArray ids = new JSONArray();
         try {
@@ -480,33 +460,32 @@ return res;
         JSONArray redAttr = new JSONArray();
         JSONArray redElems = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 String redInfoString = "SELECT redescriptionID,elemetID FROM RedescriptionElementTable WHERE redescriptionID=";
-                while(iterator1.hasNext()){
+                while (iterator1.hasNext()) {
                     JSONObject element = iterator1.next();
                     redInfoString = redInfoString + (element.values());
-                    if(iterator1.hasNext())
+                    if (iterator1.hasNext())
                         redInfoString = redInfoString + " OR redescriptionID=";
                 }
 
                 String attInfoString = "SELECT DISTINCT redescriptionID,attributeID FROM RedescriptionAttributeTable WHERE redescriptionID=";
-                while(iterator2.hasNext()){
+                while (iterator2.hasNext()) {
                     JSONObject element = iterator2.next();
                     attInfoString = attInfoString + (element.values());
-                    if(iterator2.hasNext())
+                    if (iterator2.hasNext())
                         attInfoString = attInfoString + " OR redescriptionID=";
                 }
 
                 System.out.println("redundancyInfo called!");
 
                 ResultSet redInfo = stmt.executeQuery(redInfoString);
-                while(redInfo.next())
-                {
+                while (redInfo.next()) {
                     temp.put("id", redInfo.getInt(1));
                     temp.put("elementID", redInfo.getInt(2));
                     redElems.add(temp);
@@ -515,8 +494,7 @@ return res;
                 res.put("redElems", redElems);
 
                 ResultSet attInfo = stmt.executeQuery(attInfoString);
-                while(attInfo.next())
-                {
+                while (attInfo.next()) {
                     temp.put("id", attInfo.getInt(1));
                     temp.put("attributeID", attInfo.getInt(2));
                     redAttr.add(temp);
@@ -525,16 +503,15 @@ return res;
                 res.put("redAttr", redAttr);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
-    public JSONObject redundancyinfo1(Map<String,String> request, DataBaseEnum database){
+    public JSONObject redundancyinfo1(Map<String, String> request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         JSONArray ids = new JSONArray();
         try {
@@ -549,22 +526,21 @@ return res;
         JSONArray redAttr = new JSONArray();
         JSONArray redElems = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 String redInfoString = "SELECT redescriptionID,elemetID FROM RedescriptionElementTable WHERE redescriptionID=";
-                while(iterator1.hasNext()){
+                while (iterator1.hasNext()) {
                     JSONObject element = iterator1.next();
                     redInfoString = redInfoString + (element.values());
-                    if(iterator1.hasNext())
+                    if (iterator1.hasNext())
                         redInfoString = redInfoString + " OR redescriptionID=";
                 }
                 ResultSet redInfo = stmt.executeQuery(redInfoString);
-                while(redInfo.next())
-                {
+                while (redInfo.next()) {
                     temp.put("id", redInfo.getInt(1));
                     temp.put("elementID", redInfo.getInt(2));
                     redElems.add(temp);
@@ -573,15 +549,14 @@ return res;
                 res.put("redElems", redElems);
 
                 String attInfoString = "SELECT DISTINCT redescriptionID,attributeID FROM RedescriptionAttributeTable WHERE redescriptionID=";
-                while(iterator2.hasNext()){
+                while (iterator2.hasNext()) {
                     JSONObject element = iterator2.next();
                     attInfoString = attInfoString + (element.values());
-                    if(iterator2.hasNext())
+                    if (iterator2.hasNext())
                         attInfoString = attInfoString + " OR redescriptionID=";
                 }
                 ResultSet attInfo = stmt.executeQuery(attInfoString);
-                while(attInfo.next())
-                {
+                while (attInfo.next()) {
                     temp.put("id", attInfo.getInt(1));
                     temp.put("attributeID", attInfo.getInt(2));
                     redAttr.add(temp);
@@ -590,48 +565,46 @@ return res;
                 res.put("redAttr", redAttr);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
-    public JSONObject redescriptions(Map<String,String> request, DataBaseEnum database){
+    public JSONObject redescriptions(Map<String, String> request, DataBaseEnum database) {
         int id, userId;
-        if(request.get("id") == null) id = 1;
-        else id=Integer.parseInt(request.get("id"));
-        userId=Integer.parseInt(request.get("userId"));
+        if (request.get("id") == null) id = 1;
+        else id = Integer.parseInt(request.get("id"));
+        userId = Integer.parseInt(request.get("userId"));
         //System.out.println("userId" + userId);
         JSONObject res = new JSONObject();
         JSONArray redescriptions = new JSONArray();
         JSONArray somElements = new JSONArray();
         JSONArray attributeDescriptions = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String redescriptionsInSOMClusterString = "SELECT * FROM RedescriptionTable as rt "+
-                        "WHERE rt.redescriptionID IN "+
-                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable "+
-                        "WHERE elemetID IN (SELECT elementID FROM "+
-                        "SOMClusters WHERE SOMClusterID = "+id+
-                        " AND userId = "+userId+"))";
+                String redescriptionsInSOMClusterString = "SELECT * FROM RedescriptionTable as rt " +
+                        "WHERE rt.redescriptionID IN " +
+                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable " +
+                        "WHERE elemetID IN (SELECT elementID FROM " +
+                        "SOMClusters WHERE SOMClusterID = " + id +
+                        " AND userId = " + userId + "))";
                 ResultSet redescriptionsInSOMCluster = stmt.executeQuery(redescriptionsInSOMClusterString);
-                while(redescriptionsInSOMCluster.next())
-                {
+                while (redescriptionsInSOMCluster.next()) {
                     temp.put("id", redescriptionsInSOMCluster.getInt("redescriptionID"));
                     Object[] tmpArr = new Object[5];
-                    tmpArr[0]=redescriptionsInSOMCluster.getString("redescriptionLR");
-                    tmpArr[1]=redescriptionsInSOMCluster.getString("redescriptionRR");
-                    tmpArr[2]=redescriptionsInSOMCluster.getDouble("redescriptionJS");
-                    tmpArr[3]=redescriptionsInSOMCluster.getInt("redescriptionSupport");
-                    tmpArr[4]=redescriptionsInSOMCluster.getInt("redescriptionPval");
+                    tmpArr[0] = redescriptionsInSOMCluster.getString("redescriptionLR");
+                    tmpArr[1] = redescriptionsInSOMCluster.getString("redescriptionRR");
+                    tmpArr[2] = redescriptionsInSOMCluster.getDouble("redescriptionJS");
+                    tmpArr[3] = redescriptionsInSOMCluster.getInt("redescriptionSupport");
+                    tmpArr[4] = redescriptionsInSOMCluster.getInt("redescriptionPval");
                     temp.put("data", tmpArr);
                     redescriptions.add(temp);
                     //System.out.println("\n"+ temp);
@@ -639,15 +612,14 @@ return res;
                 }
                 res.put("redescriptions", redescriptions);
 
-                String elementsInSOMClusterString = "SELECT elementID, elementDescription "+
-                        "FROM ElementTable WHERE "+
-                        "elementID IN "+
-                        "(SELECT elementID "+
-                        "FROM SOMClusters "+
-                        "WHERE SOMClusterID ="+id+" AND userId = "+userId+")";
+                String elementsInSOMClusterString = "SELECT elementID, elementDescription " +
+                        "FROM ElementTable WHERE " +
+                        "elementID IN " +
+                        "(SELECT elementID " +
+                        "FROM SOMClusters " +
+                        "WHERE SOMClusterID =" + id + " AND userId = " + userId + ")";
                 ResultSet elementsInSOMCluster = stmt.executeQuery(elementsInSOMClusterString);
-                while(elementsInSOMCluster.next())
-                {
+                while (elementsInSOMCluster.next()) {
                     temp.put("id", elementsInSOMCluster.getInt(1));
                     temp.put("name", elementsInSOMCluster.getString(2));
                     somElements.add(temp);
@@ -655,22 +627,21 @@ return res;
                 }
                 res.put("somElements", somElements);
 
-                String attributeDescriptionsInSOMClusterString = ""+
-                        "SELECT ra.attributeID, count(ra.attributeID) as count, at.attributeDescription "+
-                        "FROM attributeTable as at, RedescriptionAttributeTable as ra "+
-                        "WHERE redescriptionID IN (SELECT redescriptionID FROM RedescriptionTable "+
-                        "WHERE redescriptionID IN "+
-                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable "+
-                        "WHERE elemetID IN (SELECT elementID FROM "+
-                        "SOMClusters WHERE SOMClusterID = "+id+" AND userId = "+userId+")))"+
+                String attributeDescriptionsInSOMClusterString = "" +
+                        "SELECT ra.attributeID, count(ra.attributeID) as count, at.attributeDescription " +
+                        "FROM attributeTable as at, RedescriptionAttributeTable as ra " +
+                        "WHERE redescriptionID IN (SELECT redescriptionID FROM RedescriptionTable " +
+                        "WHERE redescriptionID IN " +
+                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable " +
+                        "WHERE elemetID IN (SELECT elementID FROM " +
+                        "SOMClusters WHERE SOMClusterID = " + id + " AND userId = " + userId + ")))" +
                         "AND ra.attributeID = at.attributeID GROUP BY ra.attributeID";
                 ResultSet attributeDescriptionsInSOMCluster = stmt.executeQuery(attributeDescriptionsInSOMClusterString);
-                while(attributeDescriptionsInSOMCluster.next())
-                {
+                while (attributeDescriptionsInSOMCluster.next()) {
                     temp.put("id", attributeDescriptionsInSOMCluster.getInt("attributeID"));
                     Object[] tmpArr1 = new Object[2];
-                    tmpArr1[0]=attributeDescriptionsInSOMCluster.getInt("count");
-                    tmpArr1[1]=attributeDescriptionsInSOMCluster.getString("attributeDescription");
+                    tmpArr1[0] = attributeDescriptionsInSOMCluster.getInt("count");
+                    tmpArr1[1] = attributeDescriptionsInSOMCluster.getString("attributeDescription");
                     temp.put("data", tmpArr1);
                     attributeDescriptions.add(temp);
                     temp = new JSONObject();
@@ -678,8 +649,7 @@ return res;
                 res.put("attributeDescriptions", attributeDescriptions);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -687,11 +657,11 @@ return res;
         return res;
     }
 
-    public JSONObject redescriptionsSel(Map<String ,String> request, DataBaseEnum database) {
+    public JSONObject redescriptionsSel(Map<String, String> request, DataBaseEnum database) {
         int userId, id;
-        userId=Integer.parseInt(request.get("userId"));
-        if(request.get("id")==null) id = 1;
-        else id=Integer.parseInt(request.get("id"));
+        userId = Integer.parseInt(request.get("userId"));
+        if (request.get("id") == null) id = 1;
+        else id = Integer.parseInt(request.get("id"));
 
         JSONObject res = new JSONObject();
         JSONArray redescriptions = new JSONArray();
@@ -699,44 +669,42 @@ return res;
         JSONArray attributeDescriptions = new JSONArray();
         JSONArray attributesSelected = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String redescriptionsInSOMClusterString = "SELECT * FROM RedescriptionTable as rt "+
-                        "WHERE rt.redescriptionID IN "+
-                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable "+
-                        "WHERE elemetID IN (SELECT elementID FROM "+
-                        "SOMClusters WHERE SOMClusterID = "+id+
-                        " AND userId = "+userId+") AND redescriptionID IN " +
-                        "(SELECT redescriptionID FROM SelectedRedescriptionsElem WHERE userId = "+userId+"))";
+                String redescriptionsInSOMClusterString = "SELECT * FROM RedescriptionTable as rt " +
+                        "WHERE rt.redescriptionID IN " +
+                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable " +
+                        "WHERE elemetID IN (SELECT elementID FROM " +
+                        "SOMClusters WHERE SOMClusterID = " + id +
+                        " AND userId = " + userId + ") AND redescriptionID IN " +
+                        "(SELECT redescriptionID FROM SelectedRedescriptionsElem WHERE userId = " + userId + "))";
                 ResultSet redescriptionsInSOMCluster = stmt.executeQuery(redescriptionsInSOMClusterString);
-                while(redescriptionsInSOMCluster.next())
-                {
+                while (redescriptionsInSOMCluster.next()) {
                     temp.put("id", redescriptionsInSOMCluster.getInt("redescriptionID"));
                     Object[] tmpArr = new Object[5];
-                    tmpArr[0]=redescriptionsInSOMCluster.getString("redescriptionLR");
-                    tmpArr[1]=redescriptionsInSOMCluster.getString("redescriptionRR");
-                    tmpArr[2]=redescriptionsInSOMCluster.getDouble("redescriptionJS");
-                    tmpArr[3]=redescriptionsInSOMCluster.getInt("redescriptionSupport");
-                    tmpArr[4]=redescriptionsInSOMCluster.getInt("redescriptionPval");
+                    tmpArr[0] = redescriptionsInSOMCluster.getString("redescriptionLR");
+                    tmpArr[1] = redescriptionsInSOMCluster.getString("redescriptionRR");
+                    tmpArr[2] = redescriptionsInSOMCluster.getDouble("redescriptionJS");
+                    tmpArr[3] = redescriptionsInSOMCluster.getInt("redescriptionSupport");
+                    tmpArr[4] = redescriptionsInSOMCluster.getInt("redescriptionPval");
                     temp.put("data", tmpArr);
                     redescriptions.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("redescriptions", redescriptions);
 
-                String elementsInSOMClusterString = "SELECT elementID, elementDescription "+
-                        "FROM ElementTable WHERE "+
-                        "elementID IN "+
-                        "(SELECT elementID "+
-                        "FROM SOMClusters "+
-                        "WHERE SOMClusterID ="+id+" AND userId = "+userId+")";
+                String elementsInSOMClusterString = "SELECT elementID, elementDescription " +
+                        "FROM ElementTable WHERE " +
+                        "elementID IN " +
+                        "(SELECT elementID " +
+                        "FROM SOMClusters " +
+                        "WHERE SOMClusterID =" + id + " AND userId = " + userId + ")";
                 ResultSet elementsInSOMCluster = stmt.executeQuery(elementsInSOMClusterString);
-                while(elementsInSOMCluster.next())
-                {
+                while (elementsInSOMCluster.next()) {
                     temp.put("id", elementsInSOMCluster.getInt(1));
                     temp.put("name", elementsInSOMCluster.getString(2));
                     somElements.add(temp);
@@ -744,23 +712,22 @@ return res;
                 }
                 res.put("somElements", somElements);
 
-                String attributeDescriptionsInSOMClusterString = ""+
-                        "SELECT ra.attributeID, count(ra.attributeID) as count, at.attributeDescription "+
-                        "FROM attributeTable as at, RedescriptionAttributeTable as ra "+
-                        "WHERE redescriptionID IN (SELECT redescriptionID FROM RedescriptionTable "+
-                        "WHERE redescriptionID IN "+
-                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable "+
-                        "WHERE elemetID IN (SELECT elementID FROM "+
-                        "SOMClusters WHERE SOMClusterID = "+id+" AND userId = "+userId+") AND redescriptionID IN " +
-                        "(SELECT redescriptionID FROM SelectedRedescriptionsElem WHERE userId = "+userId+")))"+
+                String attributeDescriptionsInSOMClusterString = "" +
+                        "SELECT ra.attributeID, count(ra.attributeID) as count, at.attributeDescription " +
+                        "FROM attributeTable as at, RedescriptionAttributeTable as ra " +
+                        "WHERE redescriptionID IN (SELECT redescriptionID FROM RedescriptionTable " +
+                        "WHERE redescriptionID IN " +
+                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable " +
+                        "WHERE elemetID IN (SELECT elementID FROM " +
+                        "SOMClusters WHERE SOMClusterID = " + id + " AND userId = " + userId + ") AND redescriptionID IN " +
+                        "(SELECT redescriptionID FROM SelectedRedescriptionsElem WHERE userId = " + userId + ")))" +
                         "AND ra.attributeID = at.attributeID GROUP BY ra.attributeID";
                 ResultSet attributeDescriptionsInSOMCluster = stmt.executeQuery(attributeDescriptionsInSOMClusterString);
-                while(attributeDescriptionsInSOMCluster.next())
-                {
+                while (attributeDescriptionsInSOMCluster.next()) {
                     temp.put("id", attributeDescriptionsInSOMCluster.getInt("attributeID"));
                     Object[] tmpArr1 = new Object[2];
-                    tmpArr1[0]=attributeDescriptionsInSOMCluster.getInt("count");
-                    tmpArr1[1]=attributeDescriptionsInSOMCluster.getString("attributeDescription");
+                    tmpArr1[0] = attributeDescriptionsInSOMCluster.getInt("count");
+                    tmpArr1[1] = attributeDescriptionsInSOMCluster.getString("attributeDescription");
                     temp.put("data", tmpArr1);
                     attributeDescriptions.add(temp);
                     temp = new JSONObject();
@@ -768,56 +735,53 @@ return res;
                 res.put("attributeDescriptions", attributeDescriptions);
 
                 ResultSet attributesSelectedQuery = stmt.executeQuery("SELECT attrName FROM SelectedAttributes WHERE userId = " + userId);
-                while(attributesSelectedQuery.next())
-                {
+                while (attributesSelectedQuery.next()) {
                     attributesSelected.add(attributesSelectedQuery.getString("attrName"));
                 }
                 res.put("attributesSelected", attributesSelected);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject redescriptionsBack(Map<String, String> request, DataBaseEnum database) {
         int id;
-        if(request.get("id")==null)
+        if (request.get("id") == null)
             id = 1;
         else
-            id=Integer.parseInt(request.get("id"));
+            id = Integer.parseInt(request.get("id"));
 
         JSONObject res = new JSONObject();
         JSONArray redescriptions = new JSONArray();
         JSONArray somElements = new JSONArray();
         JSONArray attributeDescriptions = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String redescriptionsInSOMClusterString = "SELECT * FROM RedescriptionTable as rt "+
-                        "WHERE rt.redescriptionID IN "+
-                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable "+
-                        "WHERE elemetID IN (SELECT elementID FROM "+
-                        "SOMClustersBack WHERE SOMClusterID = "+id+
+                String redescriptionsInSOMClusterString = "SELECT * FROM RedescriptionTable as rt " +
+                        "WHERE rt.redescriptionID IN " +
+                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable " +
+                        "WHERE elemetID IN (SELECT elementID FROM " +
+                        "SOMClustersBack WHERE SOMClusterID = " + id +
                         ") AND redescriptionID IN " +
                         "(SELECT redescriptionID FROM SelectedRedescriptionsElemBack))";
                 ResultSet redescriptionsInSOMCluster = stmt.executeQuery(redescriptionsInSOMClusterString);
-                while(redescriptionsInSOMCluster.next())
-                {
+                while (redescriptionsInSOMCluster.next()) {
                     temp.put("id", redescriptionsInSOMCluster.getInt("redescriptionID"));
                     Object[] tmpArr = new Object[5];
-                    tmpArr[0]=redescriptionsInSOMCluster.getString("redescriptionLR");
-                    tmpArr[1]=redescriptionsInSOMCluster.getString("redescriptionRR");
-                    tmpArr[2]=redescriptionsInSOMCluster.getDouble("redescriptionJS");
-                    tmpArr[3]=redescriptionsInSOMCluster.getInt("redescriptionSupport");
-                    tmpArr[4]=redescriptionsInSOMCluster.getInt("redescriptionPval");
+                    tmpArr[0] = redescriptionsInSOMCluster.getString("redescriptionLR");
+                    tmpArr[1] = redescriptionsInSOMCluster.getString("redescriptionRR");
+                    tmpArr[2] = redescriptionsInSOMCluster.getDouble("redescriptionJS");
+                    tmpArr[3] = redescriptionsInSOMCluster.getInt("redescriptionSupport");
+                    tmpArr[4] = redescriptionsInSOMCluster.getInt("redescriptionPval");
                     temp.put("data", tmpArr);
                     redescriptions.add(temp);
                     //System.out.println(temp);
@@ -825,15 +789,14 @@ return res;
                 }
                 res.put("redescriptions", redescriptions);
 
-                String elementsInSOMClusterString = "SELECT elementID, elementDescription "+
-                        "FROM ElementTable WHERE "+
-                        "elementID IN "+
-                        "(SELECT elementID "+
-                        "FROM SOMClustersBack "+
-                        "WHERE SOMClusterID ="+id+")";
+                String elementsInSOMClusterString = "SELECT elementID, elementDescription " +
+                        "FROM ElementTable WHERE " +
+                        "elementID IN " +
+                        "(SELECT elementID " +
+                        "FROM SOMClustersBack " +
+                        "WHERE SOMClusterID =" + id + ")";
                 ResultSet elementsInSOMCluster = stmt.executeQuery(elementsInSOMClusterString);
-                while(elementsInSOMCluster.next())
-                {
+                while (elementsInSOMCluster.next()) {
                     temp.put("id", elementsInSOMCluster.getInt(1));
                     temp.put("name", elementsInSOMCluster.getString(2));
                     somElements.add(temp);
@@ -841,23 +804,22 @@ return res;
                 }
                 res.put("somElements", somElements);
 
-                String attributeDescriptionsInSOMClusterString = ""+
-                        "SELECT ra.attributeID, count(ra.attributeID) as count, at.attributeDescription "+
-                        "FROM AttributeTable as at, RedescriptionAttributeTable as ra "+
-                        "WHERE redescriptionID IN (SELECT redescriptionID FROM RedescriptionTable "+
-                        "WHERE redescriptionID IN "+
-                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable "+
-                        "WHERE elemetID IN (SELECT elementID FROM "+
-                        "SOMClustersBack WHERE SOMClusterID = "+id+") AND redescriptionID IN " +
-                        "(SELECT redescriptionID FROM SelectedRedescriptionsElemBack)))"+
+                String attributeDescriptionsInSOMClusterString = "" +
+                        "SELECT ra.attributeID, count(ra.attributeID) as count, at.attributeDescription " +
+                        "FROM AttributeTable as at, RedescriptionAttributeTable as ra " +
+                        "WHERE redescriptionID IN (SELECT redescriptionID FROM RedescriptionTable " +
+                        "WHERE redescriptionID IN " +
+                        "(SELECT distinct redescriptionID FROM RedescriptionElementTable " +
+                        "WHERE elemetID IN (SELECT elementID FROM " +
+                        "SOMClustersBack WHERE SOMClusterID = " + id + ") AND redescriptionID IN " +
+                        "(SELECT redescriptionID FROM SelectedRedescriptionsElemBack)))" +
                         "AND ra.attributeID = at.attributeID GROUP BY ra.attributeID";
                 ResultSet attributeDescriptionsInSOMCluster = stmt.executeQuery(attributeDescriptionsInSOMClusterString);
-                while(attributeDescriptionsInSOMCluster.next())
-                {
+                while (attributeDescriptionsInSOMCluster.next()) {
                     temp.put("id", attributeDescriptionsInSOMCluster.getInt("attributeID"));
                     Object[] tmpArr1 = new Object[2];
-                    tmpArr1[0]=attributeDescriptionsInSOMCluster.getInt("count");
-                    tmpArr1[1]=attributeDescriptionsInSOMCluster.getString("attributeDescription");
+                    tmpArr1[0] = attributeDescriptionsInSOMCluster.getInt("count");
+                    tmpArr1[1] = attributeDescriptionsInSOMCluster.getString("attributeDescription");
                     temp.put("data", tmpArr1);
                     attributeDescriptions.add(temp);
                     temp = new JSONObject();
@@ -865,8 +827,7 @@ return res;
                 res.put("attributeDescriptions", attributeDescriptions);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -874,9 +835,9 @@ return res;
         return res;
     }
 
-    public JSONObject clusterinfo(Map<String,String> request, DataBaseEnum database) {
+    public JSONObject clusterinfo(Map<String, String> request, DataBaseEnum database) {
         int userId;
-        userId=Integer.parseInt(request.get("userId"));
+        userId = Integer.parseInt(request.get("userId"));
 
         JSONObject res = new JSONObject();
         JSONArray SOMDim = new JSONArray();
@@ -884,22 +845,21 @@ return res;
         JSONArray rowsStatisticsSOM = new JSONArray();
         JSONArray rowsStatisticsSupp = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String SOMClusterInfoString = "Select SOMClusterID, count(distinct coverage.elementID) as clustSize, sum(redescriptionCount) as clustFrequency "+
-                        "FROM ElementCoverage as coverage, SOMClusters as sc "+
-                        "WHERE coverage.elementID = sc.elementID AND coverage.userId = sc.userId AND sc.userId = "+userId+" "+
+                String SOMClusterInfoString = "Select SOMClusterID, count(distinct coverage.elementID) as clustSize, sum(redescriptionCount) as clustFrequency " +
+                        "FROM ElementCoverage as coverage, SOMClusters as sc " +
+                        "WHERE coverage.elementID = sc.elementID AND coverage.userId = sc.userId AND sc.userId = " + userId + " " +
                         "GROUP BY sc.SOMClusterID";
                 ResultSet SOMClusterInfo = stmt.executeQuery(SOMClusterInfoString);
-                while(SOMClusterInfo.next())
-                {
+                while (SOMClusterInfo.next()) {
                     int[] tmpArr = new int[2];
-                    tmpArr[0]=SOMClusterInfo.getInt("clustSize");
-                    tmpArr[1]=SOMClusterInfo.getInt("clustFrequency");
+                    tmpArr[0] = SOMClusterInfo.getInt("clustSize");
+                    tmpArr[1] = SOMClusterInfo.getInt("clustFrequency");
                     temp.put("id", SOMClusterInfo.getInt("SOMClusterID"));
                     temp.put("data", tmpArr);
                     SOMInfo.add(temp);
@@ -907,16 +867,15 @@ return res;
                 }
                 res.put("SOMInfo", SOMInfo);
 
-                String StatisticsSOMString = "SELECT SOMClusterID, redescriptionID, count(elemetID) as clEl from RedescriptionElementTable, SOMClusters WHERE "+
-                        "elemetID IN (SELECT elemetID FROM RedescriptionElementTable as r WHERE r.redescriptionID=redescriptionID) AND elementID=elemetID "+
-                        "AND userId = "+userId+" "+"GROUP By SOMClusterID, redescriptionID";
+                String StatisticsSOMString = "SELECT SOMClusterID, redescriptionID, count(elemetID) as clEl from RedescriptionElementTable, SOMClusters WHERE " +
+                        "elemetID IN (SELECT elemetID FROM RedescriptionElementTable as r WHERE r.redescriptionID=redescriptionID) AND elementID=elemetID " +
+                        "AND userId = " + userId + " " + "GROUP By SOMClusterID, redescriptionID";
                 ResultSet StatisticsSOM = stmt.executeQuery(StatisticsSOMString);
-                while(StatisticsSOM.next())
-                {
+                while (StatisticsSOM.next()) {
                     temp.put("clusterID", StatisticsSOM.getInt("SOMClusterID"));
                     int[] tmpArr1 = new int[2];
-                    tmpArr1[0]=StatisticsSOM.getInt("redescriptionID");
-                    tmpArr1[1]=StatisticsSOM.getInt("clEl");
+                    tmpArr1[0] = StatisticsSOM.getInt("redescriptionID");
+                    tmpArr1[1] = StatisticsSOM.getInt("clEl");
                     temp.put("data", tmpArr1);
                     rowsStatisticsSOM.add(temp);
                     temp = new JSONObject();
@@ -925,8 +884,7 @@ return res;
 
                 String StatisticsSuppString = "SELECT redescriptionID, count(elemetID) as suppEl from RedescriptionElementTable GROUP BY redescriptionID";
                 ResultSet StatisticsSupp = stmt.executeQuery(StatisticsSuppString);
-                while(StatisticsSupp.next())
-                {
+                while (StatisticsSupp.next()) {
                     temp.put("redescriptionID", StatisticsSupp.getInt("redescriptionID"));
                     temp.put("suppElCount", StatisticsSupp.getInt("suppEl"));
                     rowsStatisticsSupp.add(temp);
@@ -934,10 +892,9 @@ return res;
                 }
                 res.put("StatisticsSupp", rowsStatisticsSupp);
 
-                String SOMDimensionsString = "SELECT NumRows, NumColumns FROM SOMDimensions WHERE userId = "+userId;
+                String SOMDimensionsString = "SELECT NumRows, NumColumns FROM SOMDimensions WHERE userId = " + userId;
                 ResultSet SOMDimensions = stmt.executeQuery(SOMDimensionsString);
-                while(SOMDimensions.next())
-                {
+                while (SOMDimensions.next()) {
                     temp.put("nRows", SOMDimensions.getInt("NumRows"));
                     temp.put("nColumns", SOMDimensions.getInt("NumColumns"));
                     SOMDim.add(temp);
@@ -946,18 +903,17 @@ return res;
                 res.put("SOMDim", SOMDim);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject clusterinfosel(Map<String, String> request, DataBaseEnum database) {
         int userId;
-        userId=Integer.parseInt(request.get("userId"));
+        userId = Integer.parseInt(request.get("userId"));
 
         JSONObject res = new JSONObject();
         JSONArray SOMDim = new JSONArray();
@@ -965,22 +921,21 @@ return res;
         JSONArray rowsStatisticsSOM = new JSONArray();
         JSONArray rowsStatisticsSupp = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String SOMClusterInfoString = "Select SOMClusterID, count(distinct coverage.elementID) as clustSize, sum(redescriptionCount) as clustFrequency "+
-                        "FROM ElementCoverage as coverage, SOMClusters as sc "+
-                        "WHERE coverage.elementID = sc.elementID AND coverage.userId = sc.userId AND coverage.userId = "+userId+" "+
+                String SOMClusterInfoString = "Select SOMClusterID, count(distinct coverage.elementID) as clustSize, sum(redescriptionCount) as clustFrequency " +
+                        "FROM ElementCoverage as coverage, SOMClusters as sc " +
+                        "WHERE coverage.elementID = sc.elementID AND coverage.userId = sc.userId AND coverage.userId = " + userId + " " +
                         "GROUP BY sc.SOMClusterID";
                 ResultSet SOMClusterInfo = stmt.executeQuery(SOMClusterInfoString);
-                while(SOMClusterInfo.next())
-                {
+                while (SOMClusterInfo.next()) {
                     int[] tmpArr = new int[2];
-                    tmpArr[0]=SOMClusterInfo.getInt("clustSize");
-                    tmpArr[1]=SOMClusterInfo.getInt("clustFrequency");
+                    tmpArr[0] = SOMClusterInfo.getInt("clustSize");
+                    tmpArr[1] = SOMClusterInfo.getInt("clustFrequency");
                     temp.put("id", SOMClusterInfo.getInt("SOMClusterID"));
                     temp.put("data", tmpArr);
                     SOMInfo.add(temp);
@@ -988,27 +943,25 @@ return res;
                 }
                 res.put("SOMInfo", SOMInfo);
 
-                String StatisticsSOMString = "SELECT SOMClusterID, redescriptionID, count(distinct elemetID) as clEl from RedescriptionElementTable, SOMClusters WHERE "+
-                        "userId = "+userId+" "+"AND redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsElem WHERE userId = "+userId+") AND elementID=elemetID "+
+                String StatisticsSOMString = "SELECT SOMClusterID, redescriptionID, count(distinct elemetID) as clEl from RedescriptionElementTable, SOMClusters WHERE " +
+                        "userId = " + userId + " " + "AND redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsElem WHERE userId = " + userId + ") AND elementID=elemetID " +
                         "GROUP By SOMClusterID, redescriptionID";
                 ResultSet StatisticsSOM = stmt.executeQuery(StatisticsSOMString);
-                while(StatisticsSOM.next())
-                {
+                while (StatisticsSOM.next()) {
                     temp.put("clusterID", StatisticsSOM.getInt("SOMClusterID"));
                     int[] tmpArr1 = new int[2];
-                    tmpArr1[0]=StatisticsSOM.getInt("redescriptionID");
-                    tmpArr1[1]=StatisticsSOM.getInt("clEl");
+                    tmpArr1[0] = StatisticsSOM.getInt("redescriptionID");
+                    tmpArr1[1] = StatisticsSOM.getInt("clEl");
                     temp.put("data", tmpArr1);
                     rowsStatisticsSOM.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("StatisticsSOM", rowsStatisticsSOM);
 
-                String StatisticsSuppString = "SELECT redescriptionID, count(elemetID) as suppEl from RedescriptionElementTable WHERE redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsElem where userId = "+userId+
+                String StatisticsSuppString = "SELECT redescriptionID, count(elemetID) as suppEl from RedescriptionElementTable WHERE redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsElem where userId = " + userId +
                         ")  GROUP BY redescriptionID";
                 ResultSet StatisticsSupp = stmt.executeQuery(StatisticsSuppString);
-                while(StatisticsSupp.next())
-                {
+                while (StatisticsSupp.next()) {
                     temp.put("redescriptionID", StatisticsSupp.getInt("redescriptionID"));
                     temp.put("suppElCount", StatisticsSupp.getInt("suppEl"));
                     rowsStatisticsSupp.add(temp);
@@ -1016,10 +969,9 @@ return res;
                 }
                 res.put("StatisticsSupp", rowsStatisticsSupp);
 
-                String SOMDimensionsString = "SELECT NumRows, NumColumns FROM SOMDimensions WHERE userId = "+userId;
+                String SOMDimensionsString = "SELECT NumRows, NumColumns FROM SOMDimensions WHERE userId = " + userId;
                 ResultSet SOMDimensions = stmt.executeQuery(SOMDimensionsString);
-                while(SOMDimensions.next())
-                {
+                while (SOMDimensions.next()) {
                     temp.put("nRows", SOMDimensions.getInt("NumRows"));
                     temp.put("nColumns", SOMDimensions.getInt("NumColumns"));
                     SOMDim.add(temp);
@@ -1029,13 +981,12 @@ return res;
 
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject clusterinfoBack(DataBaseEnum database) {
@@ -1045,22 +996,21 @@ return res;
         JSONArray rowsStatisticsSOM = new JSONArray();
         JSONArray rowsStatisticsSupp = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String SOMClusterInfoString = "Select SOMClusterID, count(coverage.elementID) as clustSize, sum(redescriptionCount) as clustFrequency "+
-                        "FROM ElementCoverageBack as coverage, SOMClustersBack as sc "+
-                        "WHERE coverage.elementID = sc.elementID "+
+                String SOMClusterInfoString = "Select SOMClusterID, count(coverage.elementID) as clustSize, sum(redescriptionCount) as clustFrequency " +
+                        "FROM ElementCoverageBack as coverage, SOMClustersBack as sc " +
+                        "WHERE coverage.elementID = sc.elementID " +
                         "GROUP BY sc.SOMClusterID";
                 ResultSet SOMClusterInfo = stmt.executeQuery(SOMClusterInfoString);
-                while(SOMClusterInfo.next())
-                {
+                while (SOMClusterInfo.next()) {
                     int[] tmpArr = new int[2];
-                    tmpArr[0]=SOMClusterInfo.getInt("clustSize");
-                    tmpArr[1]=SOMClusterInfo.getInt("clustFrequency");
+                    tmpArr[0] = SOMClusterInfo.getInt("clustSize");
+                    tmpArr[1] = SOMClusterInfo.getInt("clustFrequency");
                     temp.put("id", SOMClusterInfo.getInt("SOMClusterID"));
                     temp.put("data", tmpArr);
                     SOMInfo.add(temp);
@@ -1068,16 +1018,15 @@ return res;
                 }
                 res.put("SOMInfo", SOMInfo);
 
-                String StatisticsSOMString = "SELECT SOMClusterID, redescriptionID, count(elemetID) as clEl from RedescriptionElementTable, SOMClustersBack WHERE "+
-                        "redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsElemBack) AND elementID=elemetID "+
+                String StatisticsSOMString = "SELECT SOMClusterID, redescriptionID, count(elemetID) as clEl from RedescriptionElementTable, SOMClustersBack WHERE " +
+                        "redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsElemBack) AND elementID=elemetID " +
                         "GROUP By SOMClusterID, redescriptionID";
                 ResultSet StatisticsSOM = stmt.executeQuery(StatisticsSOMString);
-                while(StatisticsSOM.next())
-                {
+                while (StatisticsSOM.next()) {
                     temp.put("clusterID", StatisticsSOM.getInt("SOMClusterID"));
                     int[] tmpArr1 = new int[2];
-                    tmpArr1[0]=StatisticsSOM.getInt("redescriptionID");
-                    tmpArr1[1]=StatisticsSOM.getInt("clEl");
+                    tmpArr1[0] = StatisticsSOM.getInt("redescriptionID");
+                    tmpArr1[1] = StatisticsSOM.getInt("clEl");
                     temp.put("data", tmpArr1);
                     rowsStatisticsSOM.add(temp);
                     temp = new JSONObject();
@@ -1086,8 +1035,7 @@ return res;
 
                 String StatisticsSuppString = "SELECT redescriptionID, count(elemetID) as suppEl from RedescriptionElementTable where redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsElemBack) GROUP BY redescriptionID";
                 ResultSet StatisticsSupp = stmt.executeQuery(StatisticsSuppString);
-                while(StatisticsSupp.next())
-                {
+                while (StatisticsSupp.next()) {
                     temp.put("redescriptionID", StatisticsSupp.getInt("redescriptionID"));
                     temp.put("suppElCount", StatisticsSupp.getInt("suppEl"));
                     rowsStatisticsSupp.add(temp);
@@ -1097,8 +1045,7 @@ return res;
 
                 String SOMDimensionsString = "SELECT * FROM SOMDimensionsBack";
                 ResultSet SOMDimensions = stmt.executeQuery(SOMDimensionsString);
-                while(SOMDimensions.next())
-                {
+                while (SOMDimensions.next()) {
                     temp.put("nRows", SOMDimensions.getInt("NumRows"));
                     temp.put("nColumns", SOMDimensions.getInt("NumColumns"));
                     SOMDim.add(temp);
@@ -1107,19 +1054,18 @@ return res;
                 res.put("SOMDim", SOMDim);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject redescriptionInfo(Map<String, String> request, DataBaseEnum database) {
         int id;
-        if(request.get("id")==null) id = 0;
-        else id=Integer.parseInt(request.get("id"));
+        if (request.get("id") == null) id = 0;
+        else id = Integer.parseInt(request.get("id"));
 
         JSONObject res = new JSONObject();
         JSONArray AttributeIntervals = new JSONArray();
@@ -1129,21 +1075,20 @@ return res;
         JSONArray ElemDesc = new JSONArray();
         JSONArray RedSupportArr = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String RedAttributeElemValuesAllString = "SELECT elementID, attributeID, Elementvalue FROM DataTable "+
-                        "WHERE attributeID IN (select attributeID from RedescriptionAttributeTable "+
-                        "WHERE redescriptionID="+id+")";
+                String RedAttributeElemValuesAllString = "SELECT elementID, attributeID, Elementvalue FROM DataTable " +
+                        "WHERE attributeID IN (select attributeID from RedescriptionAttributeTable " +
+                        "WHERE redescriptionID=" + id + ")";
                 ResultSet RedAttributeElemValuesAll = stmt.executeQuery(RedAttributeElemValuesAllString);
-                while(RedAttributeElemValuesAll.next())
-                {
+                while (RedAttributeElemValuesAll.next()) {
                     Object[] tmpArr = new Object[2];
-                    tmpArr[0]=RedAttributeElemValuesAll.getInt("elementID");
-                    tmpArr[1]=RedAttributeElemValuesAll.getDouble("elementValue");
+                    tmpArr[0] = RedAttributeElemValuesAll.getInt("elementID");
+                    tmpArr[1] = RedAttributeElemValuesAll.getDouble("elementValue");
                     temp.put("id", RedAttributeElemValuesAll.getInt("attributeID"));
                     temp.put("data", tmpArr);
                     RedAttributes.add(temp);
@@ -1151,80 +1096,75 @@ return res;
                 }
                 res.put("RedAttributes", RedAttributes);
 
-                String RedAttributeIntervalsString = "SELECT clauseID, attributeID, attributeMinValue, attributeMaxValue, negated FROM RedescriptionAttributeTable "+
-                        "WHERE redescriptionID = "+id;
+                String RedAttributeIntervalsString = "SELECT clauseID, attributeID, attributeMinValue, attributeMaxValue, negated FROM RedescriptionAttributeTable " +
+                        "WHERE redescriptionID = " + id;
                 ResultSet RedAttributeIntervals = stmt.executeQuery(RedAttributeIntervalsString);
                 Integer count = 0;
-                while(RedAttributeIntervals.next())
-                {
+                while (RedAttributeIntervals.next()) {
                     Object[] tmpArr1 = new Object[5];
-                    tmpArr1[0]=RedAttributeIntervals.getInt("attributeID");
-                    tmpArr1[1]=RedAttributeIntervals.getInt("attributeMinValue");
-                    if(RedAttributeIntervals.getDouble("attributeMaxValue") == Types.NULL)
-                        tmpArr1[2]="null";
+                    tmpArr1[0] = RedAttributeIntervals.getInt("attributeID");
+                    tmpArr1[1] = RedAttributeIntervals.getInt("attributeMinValue");
+                    if (RedAttributeIntervals.getDouble("attributeMaxValue") == Types.NULL)
+                        tmpArr1[2] = "null";
                     else
-                        tmpArr1[2]=RedAttributeIntervals.getDouble("attributeMaxValue");
-                    tmpArr1[3]=RedAttributeIntervals.getDouble("negated");
-                    tmpArr1[4]=RedAttributeIntervals.getInt("clauseID");
+                        tmpArr1[2] = RedAttributeIntervals.getDouble("attributeMaxValue");
+                    tmpArr1[3] = RedAttributeIntervals.getDouble("negated");
+                    tmpArr1[4] = RedAttributeIntervals.getInt("clauseID");
                     temp.put("id", count);
                     temp.put("data", tmpArr1);
                     AttributeIntervals.add(temp);
-                    count = count+1;
+                    count = count + 1;
                     temp = new JSONObject();
                 }
                 res.put("AttributeIntervals", AttributeIntervals);
 
-                String RedSupportString = "SELECT elemetID as element FROM RedescriptionElementTable "+
-                        "WHERE redescriptionID = "+id;
+                String RedSupportString = "SELECT elemetID as element FROM RedescriptionElementTable " +
+                        "WHERE redescriptionID = " + id;
                 ResultSet RedSupport = stmt.executeQuery(RedSupportString);
-                while(RedSupport.next())
-                {
+                while (RedSupport.next()) {
                     temp.put("element", RedSupport.getInt("element"));
                     RedSupportArr.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("RedSupport", RedSupportArr);
 
-                String RedSupportDescriptionString = "SELECT elementDescription FROM ElementTable "+
-                        "WHERE elementID IN( "+
-                        "SELECT elemetID as element FROM RedescriptionElementTable "+
-                        "WHERE redescriptionID = "+id+")";
+                String RedSupportDescriptionString = "SELECT elementDescription FROM ElementTable " +
+                        "WHERE elementID IN( " +
+                        "SELECT elemetID as element FROM RedescriptionElementTable " +
+                        "WHERE redescriptionID = " + id + ")";
                 ResultSet RedSupportDescription = stmt.executeQuery(RedSupportDescriptionString);
-                while(RedSupportDescription.next())
-                {
+                while (RedSupportDescription.next()) {
                     temp.put("elementDescription", RedSupportDescription.getString("elementDescription"));
                     ElemDesc.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("ElemDesc", ElemDesc);
 
-                String CategoryString = "SELECT * FROM CategoryTable "+
-                        "WHERE attributeID IN (SELECT attributeID FROM RedescriptionAttributeTable "+
-                        "WHERE redescriptionID = "+id+")";
+                String CategoryString = "SELECT * FROM CategoryTable " +
+                        "WHERE attributeID IN (SELECT attributeID FROM RedescriptionAttributeTable " +
+                        "WHERE redescriptionID = " + id + ")";
                 ResultSet Category = stmt.executeQuery(CategoryString);
-                while(Category.next())
-                {
+                while (Category.next()) {
                     Object[] tmpArr1 = new Object[3];
-                    tmpArr1[0]=Category.getInt("attributeID");
-                    tmpArr1[1]=Category.getDouble("categoryValue");
-                    tmpArr1[2]=Category.getString("categoryName");
+                    tmpArr1[0] = Category.getInt("attributeID");
+                    tmpArr1[1] = Category.getDouble("categoryValue");
+                    tmpArr1[2] = Category.getString("categoryName");
                     temp.put("data", tmpArr1);
                     CategoryDesc.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("CategoryDesc", CategoryDesc);
 
-                String AttrDesString = "SELECT * FROM AttributeTable "+
-                        "WHERE attributeID IN (SELECT attributeID FROM RedescriptionAttributeTable "+
-                        "WHERE redescriptionID = "+id+")";
+                String AttrDesString = "SELECT * FROM AttributeTable " +
+                        "WHERE attributeID IN (SELECT attributeID FROM RedescriptionAttributeTable " +
+                        "WHERE redescriptionID = " + id + ")";
                 ResultSet AttrDes = stmt.executeQuery(AttrDesString);
-                while(AttrDes.next())
-                {
+                while (AttrDes.next()) {
                     temp.put("id", AttrDes.getInt("attributeID"));
                     Object[] tmpArr1 = new Object[3];
-                    tmpArr1[0]=AttrDes.getString("attributeName");
-                    tmpArr1[1]=AttrDes.getString("attributeDescription");
-                    tmpArr1[2]=AttrDes.getInt("view");
+                    tmpArr1[0] = AttrDes.getString("attributeName");
+                    tmpArr1[1] = AttrDes.getString("attributeDescription");
+                    tmpArr1[2] = AttrDes.getInt("view");
                     temp.put("data", tmpArr1);
                     AttrDesc.add(temp);
                     temp = new JSONObject();
@@ -1233,33 +1173,31 @@ return res;
 
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject redescriptionSupport(Map<String, String> request, DataBaseEnum database) {
         int id;
-        if(request.get("id")==null) id = 0;
-        else id=Integer.parseInt(request.get("id"));
+        if (request.get("id") == null) id = 0;
+        else id = Integer.parseInt(request.get("id"));
         JSONObject res = new JSONObject();
-        try{
+        try {
             //System.out.println(request);
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
             JSONArray rowsRedSupp = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("SELECT elemetID FROM RedescriptionElementTable " +
-                        "WHERE redescriptionID = "+id);
-                while(rs.next())
-                {
+                        "WHERE redescriptionID = " + id);
+                while (rs.next()) {
                     //res.put("rowsRedSupp", rs.getInt("elemetID"));
                     temp.put("elemetID", rs.getInt("elemetID"));
                     rowsRedSupp.add(temp);
@@ -1268,22 +1206,21 @@ return res;
                 res.put("rowsRedSupp", rowsRedSupp);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject allRedescriptions(DataBaseEnum database) {
         JSONObject res = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 String RedMeasuresString = "PRAGMA table_info(RedescriptionTable)";
                 Statement st = conn.createStatement();
@@ -1295,7 +1232,7 @@ return res;
                 JSONObject temp = new JSONObject();
                 JSONArray measures = new JSONArray();
                 ResultSet RedMeasures = st.executeQuery(RedMeasuresString);
-                while(RedMeasures.next()){
+                while (RedMeasures.next()) {
                     length++;
                     temp.put("cid", RedMeasures.getInt("cid"));
                     temp.put("name", RedMeasures.getString("name"));
@@ -1311,14 +1248,14 @@ return res;
                 Integer i = 0;
                 String RedMinMaxString = "SELECT ";
 
-                while(RedMeasures.next()){
-                    if(i>2) {
-                        if(i+1<length)
-                            RedMinMaxString = RedMinMaxString + "max("+RedMeasures.getString("name")+
-                                    ") as maxMeasure"+(i-2)+", "+"min("+RedMeasures.getString("name")+") as minMeasure"+(i-2)+", ";
+                while (RedMeasures.next()) {
+                    if (i > 2) {
+                        if (i + 1 < length)
+                            RedMinMaxString = RedMinMaxString + "max(" + RedMeasures.getString("name") +
+                                    ") as maxMeasure" + (i - 2) + ", " + "min(" + RedMeasures.getString("name") + ") as minMeasure" + (i - 2) + ", ";
                         else
-                            RedMinMaxString = RedMinMaxString + "max("+RedMeasures.getString("name")+
-                                    ") as maxMeasure"+(i-2)+", "+"min("+RedMeasures.getString("name")+") as minMeasure"+(i-2)+" FROM RedescriptionTable";
+                            RedMinMaxString = RedMinMaxString + "max(" + RedMeasures.getString("name") +
+                                    ") as maxMeasure" + (i - 2) + ", " + "min(" + RedMeasures.getString("name") + ") as minMeasure" + (i - 2) + " FROM RedescriptionTable";
 
                     }
                     i++;
@@ -1326,13 +1263,13 @@ return res;
                 i = 0;
                 RedMeasures = st.executeQuery(RedMeasuresString);
                 String redNamesRenamedString = "SELECT ";
-                while(RedMeasures.next()){
-                    if(i==0)
-                        redNamesRenamedString = redNamesRenamedString + RedMeasures.getString("name") +" as id"+", ";
-                    else if(i+1<length)
-                        redNamesRenamedString = redNamesRenamedString + RedMeasures.getString("name") +" as col"+i+", ";
+                while (RedMeasures.next()) {
+                    if (i == 0)
+                        redNamesRenamedString = redNamesRenamedString + RedMeasures.getString("name") + " as id" + ", ";
+                    else if (i + 1 < length)
+                        redNamesRenamedString = redNamesRenamedString + RedMeasures.getString("name") + " as col" + i + ", ";
                     else
-                        redNamesRenamedString = redNamesRenamedString + RedMeasures.getString("name") +" as col"+i;
+                        redNamesRenamedString = redNamesRenamedString + RedMeasures.getString("name") + " as col" + i;
 
                     i++;
                 }
@@ -1341,10 +1278,10 @@ return res;
 
                 ResultSet redNamesRenamed = stmt.executeQuery(redNamesRenamedString);
                 JSONArray redescriptions = new JSONArray();
-                while(redNamesRenamed.next()){
+                while (redNamesRenamed.next()) {
                     temp.put("id", redNamesRenamed.getInt("id"));
-                    for(i=1; i<length; i++) {
-                        if(i<3)
+                    for (i = 1; i < length; i++) {
+                        if (i < 3)
                             temp.put("col" + i, redNamesRenamed.getString("col" + i));
                         else
                             temp.put("col" + i, redNamesRenamed.getDouble("col" + i));
@@ -1355,8 +1292,8 @@ return res;
                 JSONArray minMax = new JSONArray();
 
                 ResultSet RedMinMax = stmt.executeQuery(RedMinMaxString);
-                while(RedMinMax.next()){
-                    for(i=1; i<length-2; i++) {
+                while (RedMinMax.next()) {
+                    for (i = 1; i < length - 2; i++) {
                         temp.put("maxMeasure" + i, RedMinMax.getDouble("maxMeasure" + i));
                         temp.put("minMeasure" + i, RedMinMax.getDouble("minMeasure" + i));
                     }
@@ -1366,7 +1303,7 @@ return res;
 
                 ResultSet MeasureNames = stmt.executeQuery(MeasureNamesString);
                 JSONArray measureNames = new JSONArray();
-                while(MeasureNames.next()){
+                while (MeasureNames.next()) {
                     temp.put("displayName", MeasureNames.getString("displayName"));
                     temp.put("shortName", MeasureNames.getString("shortName"));
                     measureNames.add(temp);
@@ -1378,15 +1315,14 @@ return res;
                 res.put("measureNames", measureNames);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         return res;
     }
 
-    public Object graphData(JSONObject request, DataBaseEnum database){
+    public Object graphData(JSONObject request, DataBaseEnum database) {
         //2 run 1 prepare (somData)
         JSONParser jsonParser = new JSONParser();
         JSONArray graph = new JSONArray();
@@ -1395,21 +1331,21 @@ return res;
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 conn.setAutoCommit(false);
                 stmt.execute("DROP TABLE IF EXISTS GraphTable");
                 stmt.execute("CREATE TABLE IF NOT EXISTS GraphTable (redId1 Integer, redId2 Integer, overlap Float)");
 
                 Iterator<JSONArray> iterator = graph.iterator();
                 Integer i = 0, j = 0;
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     JSONArray data = iterator.next();
                     Iterator<Float> iterator1 = data.iterator();
-                    while(iterator1.hasNext()){
+                    while (iterator1.hasNext()) {
                         Float dataij = iterator1.next();
                         PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO GraphTable VALUES (?,?,?)");
                         insertPstmt.setInt(1, i);
@@ -1425,42 +1361,41 @@ return res;
             }
 
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         return null;
     }
 
-    public Object graphDataG(JSONObject request, DataBaseEnum database){
+    public Object graphDataG(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         JSONArray graph = new JSONArray();
         Integer startIndex = null;
         try {
             graph = (JSONArray) jsonParser.parse(String.valueOf(request.get("graph")));
-            startIndex = (Integer)jsonParser.parse(String.valueOf(request.get("start")));
+            startIndex = (Integer) jsonParser.parse(String.valueOf(request.get("start")));
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 conn.setAutoCommit(false);
                 stmt.execute("CREATE TABLE IF NOT EXISTS GraphTable (redId1 Integer, redId2 Integer, overlap Float)");
 
                 //System.out.println("start Index: "+startIndex);
                 Iterator<JSONArray> iterator = graph.iterator();
                 Integer i = 0, j = 0;
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     JSONArray data = iterator.next();
                     Iterator<Float> iterator1 = data.iterator();
-                    while(iterator1.hasNext()){
+                    while (iterator1.hasNext()) {
                         Float dataij = iterator1.next();
                         PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO GraphTable VALUES (?,?,?)");
-                        insertPstmt.setInt(1, i+startIndex);
+                        insertPstmt.setInt(1, i + startIndex);
                         insertPstmt.setInt(2, j);
                         insertPstmt.setFloat(3, dataij);
                         insertPstmt.executeUpdate();
@@ -1473,8 +1408,7 @@ return res;
 
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -1482,7 +1416,7 @@ return res;
         return null;
     }
 
-    public Object graphDataAttr(JSONObject request, DataBaseEnum database){
+    public Object graphDataAttr(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         JSONArray graph = new JSONArray();
         try {
@@ -1490,21 +1424,21 @@ return res;
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 conn.setAutoCommit(false);
                 stmt.execute("DROP TABLE IF EXISTS GraphTableAttr");
                 stmt.execute("CREATE TABLE IF NOT EXISTS GraphTableAttr (redId1 Integer, redId2 Integer, overlap Float)");
 
                 Iterator<JSONArray> iterator = graph.iterator();
                 Integer i = 0, j = 0;
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     JSONArray data = iterator.next();
                     Iterator<Float> iterator1 = data.iterator();
-                    while(iterator1.hasNext()){
+                    while (iterator1.hasNext()) {
                         Float dataij = iterator1.next();
                         PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO GraphTableAttr VALUES (?,?,?)");
                         insertPstmt.setInt(1, i);
@@ -1520,41 +1454,40 @@ return res;
             }
 
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         return null;
     }
 
-    public Object graphDataAttrG(JSONObject request, DataBaseEnum database){
+    public Object graphDataAttrG(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         JSONArray graph = new JSONArray();
         Integer startIndex = null;
         try {
             graph = (JSONArray) jsonParser.parse(String.valueOf(request.get("graphAttr")));
-            startIndex = (Integer)jsonParser.parse(String.valueOf(request.get("start")));
+            startIndex = (Integer) jsonParser.parse(String.valueOf(request.get("start")));
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 conn.setAutoCommit(false);
                 stmt.execute("CREATE TABLE IF NOT EXISTS GraphTableAttr (redId1 Integer, redId2 Integer, overlap Float)");
 
                 Iterator<JSONArray> iterator = graph.iterator();
                 Integer i = 0, j = 0;
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     JSONArray data = iterator.next();
                     Iterator<Float> iterator1 = data.iterator();
-                    while(iterator1.hasNext()){
+                    while (iterator1.hasNext()) {
                         Float dataij = iterator1.next();
                         PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO GraphTableAttr VALUES (?,?,?)");
-                        insertPstmt.setInt(1, i+startIndex);
+                        insertPstmt.setInt(1, i + startIndex);
                         insertPstmt.setInt(2, j);
                         insertPstmt.setFloat(3, dataij);
                         insertPstmt.executeUpdate();
@@ -1566,8 +1499,7 @@ return res;
             }
 
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -1576,17 +1508,16 @@ return res;
 
     public JSONObject numReds(DataBaseEnum database) {
         JSONObject res = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
             JSONArray numReds = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("SELECT count(*) as numReds FROM RedescriptionTable");
-                while(rs.next())
-                {
+                while (rs.next()) {
                     //res.put("numReds", rs.getInt("numReds"));
                     temp.put("numReds", rs.getInt("numReds"));
                     numReds.add(temp);
@@ -1595,88 +1526,7 @@ return res;
                 res.put("numReds", numReds);
             }
             conn.close();
-        }
-        catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
-
-        //System.out.println(res); 
-return res;
-    }
-
-    public JSONObject graphDataGet(Map<String, String> request, DataBaseEnum database) {
-        int startIndex, endIndex, numReds;
-        JSONObject res = new JSONObject();
-        if(request.get("start")==null || request.get("end")==null || request.get("nr")==null){
-            return res;
-        }
-        else {
-            startIndex = Integer.parseInt(request.get("start"));
-            endIndex = Integer.parseInt(request.get("end"));
-            numReds = Integer.parseInt(request.get("nr"));
-        }
-        if(numReds == 0 || startIndex > endIndex ){
-            return res;
-        }
-        //System.out.println(startIndex+" "+endIndex);
-        try{
-            Connection conn = connect(database.databaseName);
-            Statement stmt = conn.createStatement();
-
-            if(conn != null) {
-                String getGraph = "SELECT * from GraphTable where redId1>="+startIndex+" AND redId1<"+endIndex;
-
-                ResultSet rowsGraph = stmt.executeQuery(getGraph);
-                Object[][] tmpArr1 = new Object[endIndex-startIndex][numReds];
-                while(rowsGraph.next())
-                {
-                    tmpArr1[rowsGraph.getInt("redId1")-startIndex][rowsGraph.getInt("redId2")] = rowsGraph.getFloat("overlap");
-                }
-                res.put("GraphData", tmpArr1);
-            }
-            conn.close();
-        }
-        catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
-
-        //System.out.println(res); 
-return res;
-    }
-
-    public JSONObject graphDataAttrGet(Map<String, String> request, DataBaseEnum database) {
-        int startIndex, endIndex, numReds;
-        JSONObject res = new JSONObject();
-        if(request.get("start")==null || request.get("end")==null || request.get("nr")==null){
-            return res;
-        }
-        else {
-            startIndex = Integer.parseInt(request.get("start"));
-            endIndex = Integer.parseInt(request.get("end"));
-            numReds = Integer.parseInt(request.get("nr"));
-        }
-        if(numReds == 0 || startIndex > endIndex ){
-            return res;
-        }
-        //System.out.println(startIndex+" "+endIndex);
-        try{
-            Connection conn = connect(database.databaseName);
-            Statement stmt = conn.createStatement();
-
-            if(conn != null) {
-                String getGraphAttr = "SELECT * from GraphTable where redId1>="+startIndex+" AND redId1<"+endIndex;
-
-                ResultSet rowsGraph = stmt.executeQuery(getGraphAttr);
-                Object[][] tmpArr1 = new Object[endIndex-startIndex][numReds];
-                while(rowsGraph.next())
-                {
-                    tmpArr1[rowsGraph.getInt("redId1")-startIndex][rowsGraph.getInt("redId2")] = rowsGraph.getFloat("overlap");
-                }
-                res.put("GraphDataAttr", tmpArr1);
-            }
-            conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -1684,7 +1534,81 @@ return res;
         return res;
     }
 
-    public Object attrFreq(JSONObject request, DataBaseEnum database){
+    public JSONObject graphDataGet(Map<String, String> request, DataBaseEnum database) {
+        int startIndex, endIndex, numReds;
+        JSONObject res = new JSONObject();
+        if (request.get("start") == null || request.get("end") == null || request.get("nr") == null) {
+            return res;
+        } else {
+            startIndex = Integer.parseInt(request.get("start"));
+            endIndex = Integer.parseInt(request.get("end"));
+            numReds = Integer.parseInt(request.get("nr"));
+        }
+        if (numReds == 0 || startIndex > endIndex) {
+            return res;
+        }
+        //System.out.println(startIndex+" "+endIndex);
+        try {
+            Connection conn = connect(database.databaseName);
+            Statement stmt = conn.createStatement();
+
+            if (conn != null) {
+                String getGraph = "SELECT * from GraphTable where redId1>=" + startIndex + " AND redId1<" + endIndex;
+
+                ResultSet rowsGraph = stmt.executeQuery(getGraph);
+                Object[][] tmpArr1 = new Object[endIndex - startIndex][numReds];
+                while (rowsGraph.next()) {
+                    tmpArr1[rowsGraph.getInt("redId1") - startIndex][rowsGraph.getInt("redId2")] = rowsGraph.getFloat("overlap");
+                }
+                res.put("GraphData", tmpArr1);
+            }
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        //System.out.println(res); 
+        return res;
+    }
+
+    public JSONObject graphDataAttrGet(Map<String, String> request, DataBaseEnum database) {
+        int startIndex, endIndex, numReds;
+        JSONObject res = new JSONObject();
+        if (request.get("start") == null || request.get("end") == null || request.get("nr") == null) {
+            return res;
+        } else {
+            startIndex = Integer.parseInt(request.get("start"));
+            endIndex = Integer.parseInt(request.get("end"));
+            numReds = Integer.parseInt(request.get("nr"));
+        }
+        if (numReds == 0 || startIndex > endIndex) {
+            return res;
+        }
+        //System.out.println(startIndex+" "+endIndex);
+        try {
+            Connection conn = connect(database.databaseName);
+            Statement stmt = conn.createStatement();
+
+            if (conn != null) {
+                String getGraphAttr = "SELECT * from GraphTable where redId1>=" + startIndex + " AND redId1<" + endIndex;
+
+                ResultSet rowsGraph = stmt.executeQuery(getGraphAttr);
+                Object[][] tmpArr1 = new Object[endIndex - startIndex][numReds];
+                while (rowsGraph.next()) {
+                    tmpArr1[rowsGraph.getInt("redId1") - startIndex][rowsGraph.getInt("redId2")] = rowsGraph.getFloat("overlap");
+                }
+                res.put("GraphDataAttr", tmpArr1);
+            }
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        //System.out.println(res); 
+        return res;
+    }
+
+    public Object attrFreq(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         Long userId = null;
         JSONArray attributeFrequency = new JSONArray();
@@ -1698,86 +1622,86 @@ return res;
         } catch (ParseException e) {
             e.printStackTrace();
         }
-            System.out.println("userId: " + userId + "\natributeFrequency: " + attributeFrequency + "\nselReds: " + selReds);
-            try {
-                Connection conn = connect(database.databaseName);
-                Statement stmt = conn.createStatement();
+        System.out.println("userId: " + userId + "\natributeFrequency: " + attributeFrequency + "\nselReds: " + selReds);
+        try {
+            Connection conn = connect(database.databaseName);
+            Statement stmt = conn.createStatement();
 
-                if (conn != null) {
-                    conn.setAutoCommit(false);
-                    //if(!attributeFrequency.isEmpty()) {
-                        stmt.execute("DELETE FROM AttributeFrequencyTable where userId = " + userId);
-                        stmt.execute("DELETE FROM AttributeCoocurenceTable where userId = " + userId);
-                    //}
-                    //if(!selReds.isEmpty())
-                        stmt.execute("DELETE FROM SelectedRedescriptionsAttr where userId = " + userId);
+            if (conn != null) {
+                conn.setAutoCommit(false);
+                //if(!attributeFrequency.isEmpty()) {
+                stmt.execute("DELETE FROM AttributeFrequencyTable where userId = " + userId);
+                stmt.execute("DELETE FROM AttributeCoocurenceTable where userId = " + userId);
+                //}
+                //if(!selReds.isEmpty())
+                stmt.execute("DELETE FROM SelectedRedescriptionsAttr where userId = " + userId);
 
-                    Iterator<JSONObject> iterator = attributeFrequency.iterator();
-                    while (iterator.hasNext()) {
-                        JSONObject freq = iterator.next();
-                        Long frequency = null;
-                        Long id = null;
-                        String name = "";
-                        try {
-                            frequency = (Long) jsonParser.parse(String.valueOf(freq.get("frequency")));
-                            id = (Long) jsonParser.parse(String.valueOf(freq.get("id")));
-                            name = (String) freq.get("name");
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO AttributeFrequencyTable VALUES (?,?,?,?)");
-                        insertPstmt.setLong(1, userId);
-                        insertPstmt.setLong(2, frequency);
-                        insertPstmt.setLong(3, id);
-                        insertPstmt.setString(4, name);
-                        insertPstmt.executeUpdate();
+                Iterator<JSONObject> iterator = attributeFrequency.iterator();
+                while (iterator.hasNext()) {
+                    JSONObject freq = iterator.next();
+                    Long frequency = null;
+                    Long id = null;
+                    String name = "";
+                    try {
+                        frequency = (Long) jsonParser.parse(String.valueOf(freq.get("frequency")));
+                        id = (Long) jsonParser.parse(String.valueOf(freq.get("id")));
+                        name = (String) freq.get("name");
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
 
-                    Iterator<JSONObject> iterator2 = attCooc.iterator();
-                    while (iterator2.hasNext()) {
-                        JSONObject ac = iterator2.next();
-                        Long cooc = null;
-                        Long id1 = null;
-                        Long id2 = null;
-                        try {
-                            cooc = (Long) jsonParser.parse(String.valueOf(ac.get("cooc")));
-                            id1 = (Long) jsonParser.parse(String.valueOf(ac.get("id1")));
-                            id2 = (Long) jsonParser.parse(String.valueOf(ac.get("id2")));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO AttributeCoocurenceTable VALUES (?,?,?,?)");
-                        insertPstmt.setLong(1, userId);
-                        insertPstmt.setLong(2, cooc);
-                        insertPstmt.setLong(3, id1);
-                        insertPstmt.setLong(4, id2);
-                        insertPstmt.executeUpdate();
-                    }
-
-                    //PROVJERI! tu mozda iterator<long>...nakon heatmap on selection
-                    Iterator<Long> iterator3 = selReds.iterator();
-                    while (iterator3.hasNext()) {
-                        Long sr = iterator3.next();
-                        PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SelectedRedescriptionsAttr VALUES (?,?)");
-                        insertPstmt.setLong(1, userId);
-                        insertPstmt.setLong(2, sr);
-                        insertPstmt.executeUpdate();
-                    }
-
-                    conn.commit();
+                    PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO AttributeFrequencyTable VALUES (?,?,?,?)");
+                    insertPstmt.setLong(1, userId);
+                    insertPstmt.setLong(2, frequency);
+                    insertPstmt.setLong(3, id);
+                    insertPstmt.setString(4, name);
+                    insertPstmt.executeUpdate();
                 }
 
-                conn.close();
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                Iterator<JSONObject> iterator2 = attCooc.iterator();
+                while (iterator2.hasNext()) {
+                    JSONObject ac = iterator2.next();
+                    Long cooc = null;
+                    Long id1 = null;
+                    Long id2 = null;
+                    try {
+                        cooc = (Long) jsonParser.parse(String.valueOf(ac.get("cooc")));
+                        id1 = (Long) jsonParser.parse(String.valueOf(ac.get("id1")));
+                        id2 = (Long) jsonParser.parse(String.valueOf(ac.get("id2")));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO AttributeCoocurenceTable VALUES (?,?,?,?)");
+                    insertPstmt.setLong(1, userId);
+                    insertPstmt.setLong(2, cooc);
+                    insertPstmt.setLong(3, id1);
+                    insertPstmt.setLong(4, id2);
+                    insertPstmt.executeUpdate();
+                }
+
+                //PROVJERI! tu mozda iterator<long>...nakon heatmap on selection
+                Iterator<Long> iterator3 = selReds.iterator();
+                while (iterator3.hasNext()) {
+                    Long sr = iterator3.next();
+                    PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SelectedRedescriptionsAttr VALUES (?,?)");
+                    insertPstmt.setLong(1, userId);
+                    insertPstmt.setLong(2, sr);
+                    insertPstmt.executeUpdate();
+                }
+
+                conn.commit();
             }
+
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
 
         return null;
     }
 
-    public Object sharedData(JSONObject request, DataBaseEnum database){
+    public Object sharedData(JSONObject request, DataBaseEnum database) {
         JSONParser jsonParser = new JSONParser();
         Long userId = null;
         JSONArray sharedData = new JSONArray();
@@ -1794,18 +1718,18 @@ return res;
         System.out.println("shared data: " + sharedData);
         System.out.println("selected Attrs: " + selectedAttrs);
         System.out.println("selected Elems: " + selectedElems);
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
                 conn.setAutoCommit(false);
-                stmt.execute("DELETE FROM SelectedRedescriptions where userId = "+userId);
-                stmt.execute("DELETE FROM SelectedAttributes where userId = "+userId);
-                stmt.execute("DELETE FROM SelectedElements where userId = "+userId);
+                stmt.execute("DELETE FROM SelectedRedescriptions where userId = " + userId);
+                stmt.execute("DELETE FROM SelectedAttributes where userId = " + userId);
+                stmt.execute("DELETE FROM SelectedElements where userId = " + userId);
 
                 Iterator<Long> iterator = sharedData.iterator();
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     Long sd = iterator.next();
                     PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SelectedRedescriptions VALUES (?,?)");
                     insertPstmt.setLong(1, userId);
@@ -1814,7 +1738,7 @@ return res;
                 }
 
                 Iterator<String> iterator2 = selectedAttrs.iterator();
-                while(iterator2.hasNext()){
+                while (iterator2.hasNext()) {
                     String name = iterator2.next();
                     PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO SelectedAttributes VALUES (?,?)");
                     insertPstmt.setString(1, name);
@@ -1823,10 +1747,10 @@ return res;
                 }
 
                 Iterator<JSONObject> iterator3 = selectedElems.iterator();
-                while(iterator3.hasNext()){
+                while (iterator3.hasNext()) {
                     JSONObject element = iterator3.next();
                     String name = "";
-                    ResultSet findElementName = stmt.executeQuery("SELECT elementName FROM ElementTable WHERE elementDescription = "+"\"" +element.get("name")+"\"");
+                    ResultSet findElementName = stmt.executeQuery("SELECT elementName FROM ElementTable WHERE elementDescription = " + "\"" + element.get("name") + "\"");
                     while (findElementName.next()) {
                         name = findElementName.getString("elementName");
                     }
@@ -1840,8 +1764,7 @@ return res;
             }
 
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -1850,22 +1773,22 @@ return res;
 
     public JSONObject sharedDataGet(Map<String, String> request, DataBaseEnum database) {
         int userId;
-        userId=Integer.parseInt(request.get("userId"));
+        System.out.println("Ulazi");
+        userId = Integer.parseInt(request.get("userId"));
         JSONObject res = new JSONObject();
-        try{
+        try {
             //System.out.println(request);
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
             JSONArray data = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("Select redescriptionID as id from SelectedRedescriptions " +
-                        "where userId = "+userId);
-                while(rs.next())
-                {
-                    
+                        "where userId = " + userId);
+                while (rs.next()) {
+
                     //res.put("data", rs.getInt("id"));
                     temp.put("id", rs.getInt("id"));
                     data.add(temp);
@@ -1874,29 +1797,27 @@ return res;
                 res.put("data", data);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
-        //System.out.println(res);
+        System.out.println(res);
         return res;
     }
 
     public JSONObject checkTable(DataBaseEnum database) {
         JSONObject res = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
             JSONArray count = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("Select count(*) as number from sqlite_master where type=\'table\' AND name=\'GraphTable\'");
-                while(rs.next())
-                {
-                    
+                while (rs.next()) {
+
                     //res.put("count", rs.getInt("number"));
                     temp.put("number", rs.getInt("number"));
                     count.add(temp);
@@ -1905,29 +1826,27 @@ return res;
                 res.put("count", count);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject checkTableAttrs(DataBaseEnum database) {
         JSONObject res = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
             JSONArray count = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("Select count(*) as number from sqlite_master where type=\'table\' AND name=\'GraphTableAttr\'");
-                while(rs.next())
-                {
-                    
+                while (rs.next()) {
+
                     //res.put("count", rs.getInt("number"));
                     temp.put("number", rs.getInt("number"));
                     count.add(temp);
@@ -1936,8 +1855,7 @@ return res;
                 //temp = new JSONObject();
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -1947,18 +1865,17 @@ return res;
 
     public JSONObject initatData(DataBaseEnum database) {
         JSONObject res = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
             JSONArray data = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT redescriptionID as redId, attributeID as atId from RedescriptionAttributeTable");
-                while(rs.next())
-                {
-                    
+                while (rs.next()) {
+
                     temp.put("redId", rs.getInt("redId"));
                     temp.put("atId", rs.getInt("atId"));
                     data.add(temp);
@@ -1967,8 +1884,7 @@ return res;
                 res.put("data", data);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -1978,7 +1894,7 @@ return res;
 
     public JSONObject attributeData(DataBaseEnum database) {
         JSONObject res = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
             JSONObject temp = new JSONObject();
@@ -1986,12 +1902,11 @@ return res;
             JSONArray frequency = new JSONArray();
             JSONArray attCooc = new JSONArray();
 
-            if(conn != null) {
+            if (conn != null) {
 
                 ResultSet rs = stmt.executeQuery("SELECT attributeID as id, attributeName as Name FROM AttributeTable");
-                while(rs.next())
-                {
-                    
+                while (rs.next()) {
+
                     temp.put("id", rs.getInt("id"));
                     temp.put("Name", rs.getString("Name"));
                     attributes.add(temp);
@@ -2000,8 +1915,7 @@ return res;
                 res.put("attributes", attributes);
 
                 ResultSet rs2 = stmt.executeQuery("SELECT attributeID as id, count(DISTINCT redescriptionID) as frequency FROM RedescriptionAttributeTable group by attributeID");
-                while(rs2.next())
-                {
+                while (rs2.next()) {
                     //System.out.println(rs2);
                     temp.put("id", rs2.getInt("id"));
                     temp.put("frequency", rs2.getInt("frequency"));
@@ -2011,8 +1925,7 @@ return res;
                 res.put("frequency", frequency);
 
                 ResultSet rs3 = stmt.executeQuery("SELECT COUNT(distinct a1.redescriptionID) as cooc, a1.attributeID as id1, a2.attributeID as id2 FROM RedescriptionAttributeTable as a1, RedescriptionAttributeTable as a2 WHERE a1.redescriptionID=a2.redescriptionID group by a1.attributeID, a2.attributeID");
-                while(rs3.next())
-                {
+                while (rs3.next()) {
                     //System.out.println(rs3);
                     temp.put("cooc", rs3.getInt("cooc"));
                     temp.put("id1", rs3.getInt("id1"));
@@ -2023,8 +1936,7 @@ return res;
                 res.put("attCooc", attCooc);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -2032,23 +1944,23 @@ return res;
         return res;
     }
 
-    public JSONObject attributeCoocurence(Map<String,String> request, DataBaseEnum database) {
+    public JSONObject attributeCoocurence(Map<String, String> request, DataBaseEnum database) {
         int toDisplay, offsetRow, offsetCol, userId;
-        if(request.get("toDisplay") == null) toDisplay = 50;
-        else toDisplay=Integer.parseInt(request.get("toDisplay"));
+        if (request.get("toDisplay") == null) toDisplay = 50;
+        else toDisplay = Integer.parseInt(request.get("toDisplay"));
 
-        if(request.get("offsetRow") == null) offsetRow = 50;
-        else offsetRow=Integer.parseInt(request.get("offsetRow"));
+        if (request.get("offsetRow") == null) offsetRow = 50;
+        else offsetRow = Integer.parseInt(request.get("offsetRow"));
 
-        if(request.get("offsetCol") == null) offsetCol = 50;
-        else offsetCol=Integer.parseInt(request.get("offsetCol"));
+        if (request.get("offsetCol") == null) offsetCol = 50;
+        else offsetCol = Integer.parseInt(request.get("offsetCol"));
 
-        if(request.get("userId") == null) userId = 50;
-        else userId=Integer.parseInt(request.get("userId"));
+        if (request.get("userId") == null) userId = 50;
+        else userId = Integer.parseInt(request.get("userId"));
 
         //System.out.println("\nuserId" + userId);
         JSONObject res = new JSONObject();
-        try{
+        try {
             //System.out.println(request);
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
@@ -2060,17 +1972,16 @@ return res;
             JSONArray rowsAttCountCol = new JSONArray();
             JSONArray rowsLinks = new JSONArray();
             JSONArray rowsMax = new JSONArray();
-            int number = (offsetRow-1)*toDisplay;
+            int number = (offsetRow - 1) * toDisplay;
 
-            if(conn != null) {
+            if (conn != null) {
 
                 String attributeNodesString = "SELECT aft.frequency as count, aft.attributeID as id, at.attributeName as Name, at.attributeDescription as Description " +
                         "FROM AttributeFrequencyTable as aft INNER JOIN AttributeTable as at " +
-                        "ON aft.attributeID=at.attributeID WHERE at.view=1 AND aft.userId="+userId+" "+
-                        "ORDER BY aft.frequency desc LIMIT "+toDisplay+" OFFSET "+number+"";
+                        "ON aft.attributeID=at.attributeID WHERE at.view=1 AND aft.userId=" + userId + " " +
+                        "ORDER BY aft.frequency desc LIMIT " + toDisplay + " OFFSET " + number + "";
                 ResultSet attributeNodes = stmt.executeQuery(attributeNodesString);
-                while(attributeNodes.next())
-                {
+                while (attributeNodes.next()) {
                     temp.put("count", attributeNodes.getInt("count"));
                     temp.put("id", attributeNodes.getInt("id"));
                     temp.put("Name", attributeNodes.getString("Name"));
@@ -2084,10 +1995,9 @@ return res;
 
                 ResultSet attributeNodes1 = stmt.executeQuery("SELECT frequency as count, aft.attributeID as id, at.attributeName as Name, at.attributeDescription as Description " +
                         "FROM AttributeFrequencyTable as aft, AttributeTable as at " +
-                        "WHERE aft.attributeID=at.attributeID AND at.view=2 AND userId = "+userId+" " +
-                        "ORDER BY frequency desc LIMIT "+toDisplay+" OFFSET "+((offsetCol-1)*toDisplay));
-                while(attributeNodes1.next())
-                {
+                        "WHERE aft.attributeID=at.attributeID AND at.view=2 AND userId = " + userId + " " +
+                        "ORDER BY frequency desc LIMIT " + toDisplay + " OFFSET " + ((offsetCol - 1) * toDisplay));
+                while (attributeNodes1.next()) {
                     //System.out.println(attributeNodes1);
                     temp.put("count", attributeNodes1.getInt("count"));
                     temp.put("id", attributeNodes1.getInt("id"));
@@ -2100,8 +2010,7 @@ return res;
                 temp = new JSONObject();
 
                 ResultSet attributeCount = stmt.executeQuery("SELECT count(attributeID) as count FROM AttributeTable");
-                while(attributeCount.next())
-                {
+                while (attributeCount.next()) {
                     //System.out.println(attributeCount);
                     temp.put("count", attributeCount.getInt("count"));
                     rowsAttCount.add(temp);
@@ -2110,36 +2019,33 @@ return res;
                 res.put("attcount", rowsAttCount);
 
                 ResultSet attributeCountRow = stmt.executeQuery("SELECT count(attributeID) as count FROM AttributeTable WHERE view=1 AND attributeID IN " +
-                        "(SELECT attributeID1 FROM AttributeCoocurenceTable WHERE userId = "+userId+")");
-                while(attributeCountRow.next())
-                {
+                        "(SELECT attributeID1 FROM AttributeCoocurenceTable WHERE userId = " + userId + ")");
+                while (attributeCountRow.next()) {
                     temp.put("count", attributeCountRow.getInt("count"));
                     rowsAttCountRow.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("attcountW1", rowsAttCountRow);
 
-                ResultSet attributeCountCol = stmt.executeQuery("SELECT count(attributeID) as count FROM AttributeTable WHERE view=2 AND attributeID IN "+
-                        "(SELECT attributeID2 FROM AttributeCoocurenceTable WHERE userId = "+userId+")");
-                while(attributeCountCol.next())
-                {
+                ResultSet attributeCountCol = stmt.executeQuery("SELECT count(attributeID) as count FROM AttributeTable WHERE view=2 AND attributeID IN " +
+                        "(SELECT attributeID2 FROM AttributeCoocurenceTable WHERE userId = " + userId + ")");
+                while (attributeCountCol.next()) {
                     temp.put("count", attributeCountCol.getInt("count"));
                     rowsAttCountCol.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("attcountW2", rowsAttCountCol);
 
-                ResultSet links = stmt.executeQuery("SELECT attributeID1 as source, attributeID2 as target, coocurence as value "+
-                        "FROM AttributeCoocurenceTable as act, AttributeTable as at1, AttributeTable as at2 "+
-                        "WHERE attributeID1!=attributeID2 and attributeID1=at1.attributeID AND attributeID2=at2.attributeID "+
-                        "AND at1.view=1 AND at2.view=2 AND act.userId = "+userId+" "+
-                        "AND attributeID1 IN (SELECT at.attributeID from AttributeFrequencyTable as aft, AttributeTable as at "+
-                        "WHERE aft.attributeID=at.attributeID AND at.view=1 AND aft.userId = "+userId+" "+"ORDER BY frequency DESC LIMIT "+toDisplay+" OFFSET "+(offsetRow-1)*toDisplay +") "+
-                        "AND attributeID2 IN (SELECT at.attributeID from AttributeFrequencyTable as aft, attributeTable as at "+
-                        "WHERE aft.attributeID=at.attributeID AND at.view=2 AND aft.userId = "+userId+" ORDER BY frequency DESC LIMIT "+toDisplay+" OFFSET "+(offsetCol-1)*toDisplay+") "+
+                ResultSet links = stmt.executeQuery("SELECT attributeID1 as source, attributeID2 as target, coocurence as value " +
+                        "FROM AttributeCoocurenceTable as act, AttributeTable as at1, AttributeTable as at2 " +
+                        "WHERE attributeID1!=attributeID2 and attributeID1=at1.attributeID AND attributeID2=at2.attributeID " +
+                        "AND at1.view=1 AND at2.view=2 AND act.userId = " + userId + " " +
+                        "AND attributeID1 IN (SELECT at.attributeID from AttributeFrequencyTable as aft, AttributeTable as at " +
+                        "WHERE aft.attributeID=at.attributeID AND at.view=1 AND aft.userId = " + userId + " " + "ORDER BY frequency DESC LIMIT " + toDisplay + " OFFSET " + (offsetRow - 1) * toDisplay + ") " +
+                        "AND attributeID2 IN (SELECT at.attributeID from AttributeFrequencyTable as aft, attributeTable as at " +
+                        "WHERE aft.attributeID=at.attributeID AND at.view=2 AND aft.userId = " + userId + " ORDER BY frequency DESC LIMIT " + toDisplay + " OFFSET " + (offsetCol - 1) * toDisplay + ") " +
                         "ORDER BY coocurence DESC");
-                while(links.next())
-                {
+                while (links.next()) {
                     temp.put("source", links.getInt("source"));
                     temp.put("target", links.getInt("target"));
                     temp.put("value", links.getInt("value"));
@@ -2151,10 +2057,9 @@ return res;
                 res.put("pageRows", offsetRow);
                 res.put("pageCols", offsetCol);
 
-                ResultSet maxCoocurence = stmt.executeQuery("SELECT max(coocurence) as maxCoocurence FROM AttributeCoocurenceTable, AttributeTable as at1, AttributeTable as at2 WHERE "+
-                        "attributeID1!=attributeID2 AND at1.attributeID=attributeID1 AND at2.attributeID=attributeID2 AND at1.view=1 and at2.view=2 AND userId = "+userId);
-                while(maxCoocurence.next())
-                {
+                ResultSet maxCoocurence = stmt.executeQuery("SELECT max(coocurence) as maxCoocurence FROM AttributeCoocurenceTable, AttributeTable as at1, AttributeTable as at2 WHERE " +
+                        "attributeID1!=attributeID2 AND at1.attributeID=attributeID1 AND at2.attributeID=attributeID2 AND at1.view=1 and at2.view=2 AND userId = " + userId);
+                while (maxCoocurence.next()) {
                     //System.out.println(maxCoocurence);
                     temp.put("maxCoocurence", maxCoocurence.getInt("maxCoocurence"));
                     rowsMax.add(temp);
@@ -2163,24 +2068,23 @@ return res;
                 res.put("maxCoocurence", rowsMax);
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject attributeRedescriptions(Map<String, String> request, DataBaseEnum database) {
         int userId, attribute1, attribute2;
         String numAttrs = "";
-        userId=Integer.parseInt(request.get("userId"));
-        numAttrs=request.get("numAttr");
-        if(request.get("attribute1")==null) attribute1 = 0;
-        else attribute1=Integer.parseInt(request.get("attribute1"));
-        if(request.get("attribute2")==null) attribute2 = 0;
-        else attribute2=Integer.parseInt(request.get("attribute2"));
+        userId = Integer.parseInt(request.get("userId"));
+        numAttrs = request.get("numAttr");
+        if (request.get("attribute1") == null) attribute1 = 0;
+        else attribute1 = Integer.parseInt(request.get("attribute1"));
+        if (request.get("attribute2") == null) attribute2 = 0;
+        else attribute2 = Integer.parseInt(request.get("attribute2"));
 
         JSONObject res = new JSONObject();
         JSONArray redescriptions = new JSONArray();
@@ -2189,36 +2093,34 @@ return res;
         JSONArray attAssoc1 = new JSONArray();
         JSONArray attAssoc2 = new JSONArray();
         JSONObject temp = new JSONObject();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String attributeRedescriptionsString = "SELECT DISTINCT rt1.redescriptionID, rt1.redescriptionLR,  rt1.redescriptionRR, rt1.redescriptionJS, rt1.redescriptionSupport, rt1.redescriptionPval "+
-                        "FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE "+
-                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rat1.attributeID="+attribute1+" "+
-                        "AND rat2.attributeID = "+attribute2;
+                String attributeRedescriptionsString = "SELECT DISTINCT rt1.redescriptionID, rt1.redescriptionLR,  rt1.redescriptionRR, rt1.redescriptionJS, rt1.redescriptionSupport, rt1.redescriptionPval " +
+                        "FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE " +
+                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rat1.attributeID=" + attribute1 + " " +
+                        "AND rat2.attributeID = " + attribute2;
                 ResultSet attributeRedescriptions = stmt.executeQuery(attributeRedescriptionsString);
-                while(attributeRedescriptions.next())
-                {
+                while (attributeRedescriptions.next()) {
                     temp.put("id", attributeRedescriptions.getInt("redescriptionID"));
                     Object[] tmpArr = new Object[5];
-                    tmpArr[0]=attributeRedescriptions.getString("redescriptionLR");
-                    tmpArr[1]=attributeRedescriptions.getString("redescriptionRR");
-                    tmpArr[2]=attributeRedescriptions.getDouble("redescriptionJS");
-                    tmpArr[3]=attributeRedescriptions.getInt("redescriptionSupport");
-                    tmpArr[4]=attributeRedescriptions.getInt("redescriptionPval");
+                    tmpArr[0] = attributeRedescriptions.getString("redescriptionLR");
+                    tmpArr[1] = attributeRedescriptions.getString("redescriptionRR");
+                    tmpArr[2] = attributeRedescriptions.getDouble("redescriptionJS");
+                    tmpArr[3] = attributeRedescriptions.getInt("redescriptionSupport");
+                    tmpArr[4] = attributeRedescriptions.getInt("redescriptionPval");
                     temp.put("data", tmpArr);
                     redescriptions.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("redescriptions", redescriptions);
 
-                String selectedAttributeInfoString = "SELECT * FROM AttributeTable WHERE attributeID IN ("+attribute1+","+attribute2+")";
+                String selectedAttributeInfoString = "SELECT * FROM AttributeTable WHERE attributeID IN (" + attribute1 + "," + attribute2 + ")";
                 ResultSet selectedAttributeInfo = stmt.executeQuery(selectedAttributeInfoString);
-                while(selectedAttributeInfo.next())
-                {
+                while (selectedAttributeInfo.next()) {
                     temp.put("attributeID", selectedAttributeInfo.getInt(1));
                     temp.put("attributeName", selectedAttributeInfo.getString(2));
                     temp.put("attributeDescription", selectedAttributeInfo.getString(3));
@@ -2228,58 +2130,55 @@ return res;
                 }
                 res.put("selAttrs", selAttrs);
 
-                String attrAssoc1String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID2 AND act.attributeID1 = "+
-                        attribute1+" AND at.attributeID IN ( SELECT attributeID2 from AttributeTable,AttributeCoocurenceTable where userId="+
-                        userId+" and attributeID1 = "+attribute1+" and attributeID = attributeID2 "+
-                        "and view=2 order by coocurence DESC LIMIT "+numAttrs+") order by coocurence DESC";
+                String attrAssoc1String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID2 AND act.attributeID1 = " +
+                        attribute1 + " AND at.attributeID IN ( SELECT attributeID2 from AttributeTable,AttributeCoocurenceTable where userId=" +
+                        userId + " and attributeID1 = " + attribute1 + " and attributeID = attributeID2 " +
+                        "and view=2 order by coocurence DESC LIMIT " + numAttrs + ") order by coocurence DESC";
                 ResultSet attrAssoc1 = stmt.executeQuery(attrAssoc1String);
-                while(attrAssoc1.next())
-                {
+                while (attrAssoc1.next()) {
                     temp.put("id", attrAssoc1.getInt("attributeID"));
                     Object[] tmpArr = new Object[4];
-                    tmpArr[0]=attrAssoc1.getString("attributeName");
-                    tmpArr[1]=attrAssoc1.getString("attributeDescription");
-                    tmpArr[2]=attrAssoc1.getInt("view");
-                    tmpArr[3]=attrAssoc1.getInt("coocurence");
+                    tmpArr[0] = attrAssoc1.getString("attributeName");
+                    tmpArr[1] = attrAssoc1.getString("attributeDescription");
+                    tmpArr[2] = attrAssoc1.getInt("view");
+                    tmpArr[3] = attrAssoc1.getInt("coocurence");
                     temp.put("data", tmpArr);
                     attAssoc1.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("attAssoc1", attAssoc1);
 
-                String attrAssoc2String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID1 AND act.attributeID2 = "+
-                        attribute2+" AND at.attributeID IN ( SELECT attributeID1 from AttributeTable,AttributeCoocurenceTable where userId="+
-                        userId+" and attributeID2 = "+attribute2+" and attributeID = attributeID1 "+
-                        "and view=1 order by coocurence DESC LIMIT "+numAttrs+") order by coocurence DESC";
+                String attrAssoc2String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID1 AND act.attributeID2 = " +
+                        attribute2 + " AND at.attributeID IN ( SELECT attributeID1 from AttributeTable,AttributeCoocurenceTable where userId=" +
+                        userId + " and attributeID2 = " + attribute2 + " and attributeID = attributeID1 " +
+                        "and view=1 order by coocurence DESC LIMIT " + numAttrs + ") order by coocurence DESC";
                 ResultSet attrAssoc2 = stmt.executeQuery(attrAssoc2String);
-                while(attrAssoc2.next())
-                {
+                while (attrAssoc2.next()) {
                     temp.put("id", attrAssoc2.getInt("attributeID"));
                     Object[] tmpArr = new Object[4];
-                    tmpArr[0]=attrAssoc2.getString("attributeName");
-                    tmpArr[1]=attrAssoc2.getString("attributeDescription");
-                    tmpArr[2]=attrAssoc2.getInt("view");
-                    tmpArr[3]=attrAssoc2.getInt("coocurence");
+                    tmpArr[0] = attrAssoc2.getString("attributeName");
+                    tmpArr[1] = attrAssoc2.getString("attributeDescription");
+                    tmpArr[2] = attrAssoc2.getInt("view");
+                    tmpArr[3] = attrAssoc2.getInt("coocurence");
                     temp.put("data", tmpArr);
                     attAssoc2.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("attAssoc2", attAssoc2);
 
-                String attributesRL1String = "SELECT rat.redescriptionID, at.attributeID, attributeName, attributeDescription, view FROM AttributeTable as at, RedescriptionAttributeTable as rat WHERE "+
-                        "at.attributeID = rat.attributeID AND rat.redescriptionID IN ("+
-                        "SELECT DISTINCT rt1.redescriptionID FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE "+
-                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rat1.attributeID="+attribute1+" "+
-                        "AND rat2.attributeID = "+attribute2+")";
+                String attributesRL1String = "SELECT rat.redescriptionID, at.attributeID, attributeName, attributeDescription, view FROM AttributeTable as at, RedescriptionAttributeTable as rat WHERE " +
+                        "at.attributeID = rat.attributeID AND rat.redescriptionID IN (" +
+                        "SELECT DISTINCT rt1.redescriptionID FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE " +
+                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rat1.attributeID=" + attribute1 + " " +
+                        "AND rat2.attributeID = " + attribute2 + ")";
                 ResultSet attributesRL1 = stmt.executeQuery(attributesRL1String);
-                while(attributesRL1.next())
-                {
+                while (attributesRL1.next()) {
                     temp.put("id", attributesRL1.getInt("redescriptionID"));
                     Object[] tmpArr = new Object[4];
-                    tmpArr[0]=attributesRL1.getInt("attributeID");
-                    tmpArr[1]=attributesRL1.getString("attributeName");
-                    tmpArr[2]=attributesRL1.getString("attributeDescription");
-                    tmpArr[3]=attributesRL1.getInt("view");
+                    tmpArr[0] = attributesRL1.getInt("attributeID");
+                    tmpArr[1] = attributesRL1.getString("attributeName");
+                    tmpArr[2] = attributesRL1.getString("attributeDescription");
+                    tmpArr[3] = attributesRL1.getInt("view");
                     temp.put("data", tmpArr);
                     redescriptionAttrs.add(temp);
                     temp = new JSONObject();
@@ -2288,24 +2187,23 @@ return res;
 
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
         //System.out.println(res); 
-return res;
+        return res;
     }
 
     public JSONObject attributeRedescriptionsSel(Map<String, String> request, DataBaseEnum database) {
         int userId, attribute1, attribute2;
-        String numAttrs="";
-        userId=Integer.parseInt(request.get("userId"));
-        numAttrs=request.get("numAttr");
-        if(request.get("attribute1")==null) attribute1 = 0;
-        else attribute1=Integer.parseInt(request.get("attribute1"));
-        if(request.get("attribute2")==null) attribute2 = 0;
-        else attribute2=Integer.parseInt(request.get("attribute2"));
+        String numAttrs = "";
+        userId = Integer.parseInt(request.get("userId"));
+        numAttrs = request.get("numAttr");
+        if (request.get("attribute1") == null) attribute1 = 0;
+        else attribute1 = Integer.parseInt(request.get("attribute1"));
+        if (request.get("attribute2") == null) attribute2 = 0;
+        else attribute2 = Integer.parseInt(request.get("attribute2"));
         JSONObject res = new JSONObject();
         JSONArray redescriptions = new JSONArray();
         JSONArray redescriptionAttrs = new JSONArray();
@@ -2315,37 +2213,35 @@ return res;
         JSONObject temp = new JSONObject();
         JSONArray elementsSelected = new JSONArray();
         JSONArray elementsDescriptionSelected = new JSONArray();
-        try{
+        try {
             Connection conn = connect(database.databaseName);
             Statement stmt = conn.createStatement();
 
-            if(conn != null) {
+            if (conn != null) {
 
-                String attributeRedescriptionsString = "SELECT DISTINCT rt1.redescriptionID, rt1.redescriptionLR,  rt1.redescriptionRR, rt1.redescriptionJS, rt1.redescriptionSupport, rt1.redescriptionPval "+
-                        "FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE "+
-                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rt1.redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsAttr WHERE userId = "+
-                        userId+") AND rat1.attributeID="+attribute1+" "+
-                        "AND rat2.attributeID = "+attribute2;
+                String attributeRedescriptionsString = "SELECT DISTINCT rt1.redescriptionID, rt1.redescriptionLR,  rt1.redescriptionRR, rt1.redescriptionJS, rt1.redescriptionSupport, rt1.redescriptionPval " +
+                        "FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE " +
+                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rt1.redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsAttr WHERE userId = " +
+                        userId + ") AND rat1.attributeID=" + attribute1 + " " +
+                        "AND rat2.attributeID = " + attribute2;
                 ResultSet attributeRedescriptions = stmt.executeQuery(attributeRedescriptionsString);
-                while(attributeRedescriptions.next())
-                {
+                while (attributeRedescriptions.next()) {
                     temp.put("id", attributeRedescriptions.getInt("redescriptionID"));
                     Object[] tmpArr = new Object[5];
-                    tmpArr[0]=attributeRedescriptions.getString("redescriptionLR");
-                    tmpArr[1]=attributeRedescriptions.getString("redescriptionRR");
-                    tmpArr[2]=attributeRedescriptions.getDouble("redescriptionJS");
-                    tmpArr[3]=attributeRedescriptions.getInt("redescriptionSupport");
-                    tmpArr[4]=attributeRedescriptions.getInt("redescriptionPval");
+                    tmpArr[0] = attributeRedescriptions.getString("redescriptionLR");
+                    tmpArr[1] = attributeRedescriptions.getString("redescriptionRR");
+                    tmpArr[2] = attributeRedescriptions.getDouble("redescriptionJS");
+                    tmpArr[3] = attributeRedescriptions.getInt("redescriptionSupport");
+                    tmpArr[4] = attributeRedescriptions.getInt("redescriptionPval");
                     temp.put("data", tmpArr);
                     redescriptions.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("redescriptions", redescriptions);
 
-                String selectedAttributeInfoString = "SELECT * FROM AttributeTable WHERE attributeID IN ("+attribute1+","+attribute2+")";
+                String selectedAttributeInfoString = "SELECT * FROM AttributeTable WHERE attributeID IN (" + attribute1 + "," + attribute2 + ")";
                 ResultSet selectedAttributeInfo = stmt.executeQuery(selectedAttributeInfoString);
-                while(selectedAttributeInfo.next())
-                {
+                while (selectedAttributeInfo.next()) {
                     temp.put("attributeID", selectedAttributeInfo.getInt(1));
                     temp.put("attributeName", selectedAttributeInfo.getString(2));
                     temp.put("attributeDescription", selectedAttributeInfo.getString(3));
@@ -2355,59 +2251,56 @@ return res;
                 }
                 res.put("selAttrs", selAttrs);
 
-                String attrAssoc1String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID2 AND act.attributeID1 = "+
-                        attribute1+" AND at.attributeID IN ( SELECT attributeID2 from AttributeTable,AttributeCoocurenceTable where userId="+
-                        userId+" and attributeID1 = "+attribute1+" and attributeID = attributeID2 "+
-                        "and view=2 order by coocurence DESC LIMIT "+numAttrs+") order by coocurence DESC";
+                String attrAssoc1String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID2 AND act.attributeID1 = " +
+                        attribute1 + " AND at.attributeID IN ( SELECT attributeID2 from AttributeTable,AttributeCoocurenceTable where userId=" +
+                        userId + " and attributeID1 = " + attribute1 + " and attributeID = attributeID2 " +
+                        "and view=2 order by coocurence DESC LIMIT " + numAttrs + ") order by coocurence DESC";
                 ResultSet attrAssoc1 = stmt.executeQuery(attrAssoc1String);
-                while(attrAssoc1.next())
-                {
+                while (attrAssoc1.next()) {
                     temp.put("id", attrAssoc1.getInt("attributeID"));
                     Object[] tmpArr = new Object[4];
-                    tmpArr[0]=attrAssoc1.getString("attributeName");
-                    tmpArr[1]=attrAssoc1.getString("attributeDescription");
-                    tmpArr[2]=attrAssoc1.getInt("view");
-                    tmpArr[3]=attrAssoc1.getInt("coocurence");
+                    tmpArr[0] = attrAssoc1.getString("attributeName");
+                    tmpArr[1] = attrAssoc1.getString("attributeDescription");
+                    tmpArr[2] = attrAssoc1.getInt("view");
+                    tmpArr[3] = attrAssoc1.getInt("coocurence");
                     temp.put("data", tmpArr);
                     attAssoc1.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("attAssoc1", attAssoc1);
 
-                String attrAssoc2String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID1 AND act.attributeID2 = "+
-                        attribute2+" AND at.attributeID IN ( SELECT attributeID1 from AttributeTable,AttributeCoocurenceTable where userId="+
-                        userId+" and attributeID2 = "+attribute2+" and attributeID = attributeID1 "+
-                        "and view=1 order by coocurence DESC LIMIT "+numAttrs+") order by coocurence DESC";
+                String attrAssoc2String = "SELECT distinct attributeID, attributeName, attributeDescription, view, coocurence from AttributeTable as at, AttributeCoocurenceTable as act where at.attributeID = act.attributeID1 AND act.attributeID2 = " +
+                        attribute2 + " AND at.attributeID IN ( SELECT attributeID1 from AttributeTable,AttributeCoocurenceTable where userId=" +
+                        userId + " and attributeID2 = " + attribute2 + " and attributeID = attributeID1 " +
+                        "and view=1 order by coocurence DESC LIMIT " + numAttrs + ") order by coocurence DESC";
                 ResultSet attrAssoc2 = stmt.executeQuery(attrAssoc2String);
-                while(attrAssoc2.next())
-                {
+                while (attrAssoc2.next()) {
                     temp.put("id", attrAssoc2.getInt("attributeID"));
                     Object[] tmpArr = new Object[4];
-                    tmpArr[0]=attrAssoc2.getString("attributeName");
-                    tmpArr[1]=attrAssoc2.getString("attributeDescription");
-                    tmpArr[2]=attrAssoc2.getInt("view");
-                    tmpArr[3]=attrAssoc2.getInt("coocurence");
+                    tmpArr[0] = attrAssoc2.getString("attributeName");
+                    tmpArr[1] = attrAssoc2.getString("attributeDescription");
+                    tmpArr[2] = attrAssoc2.getInt("view");
+                    tmpArr[3] = attrAssoc2.getInt("coocurence");
                     temp.put("data", tmpArr);
                     attAssoc2.add(temp);
                     temp = new JSONObject();
                 }
                 res.put("attAssoc2", attAssoc2);
 
-                String attributesRL1String = "SELECT rat.redescriptionID, at.attributeID, attributeName, attributeDescription, view FROM AttributeTable as at, RedescriptionAttributeTable as rat WHERE "+
-                        "at.attributeID = rat.attributeID AND rat.redescriptionID IN ("+
-                        "SELECT DISTINCT rt1.redescriptionID FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE "+
-                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rt1.redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsAttr WHERE userId = "+
-                        userId+") AND rat1.attributeID="+attribute1+" "+
-                        "AND rat2.attributeID = "+attribute2+")";
+                String attributesRL1String = "SELECT rat.redescriptionID, at.attributeID, attributeName, attributeDescription, view FROM AttributeTable as at, RedescriptionAttributeTable as rat WHERE " +
+                        "at.attributeID = rat.attributeID AND rat.redescriptionID IN (" +
+                        "SELECT DISTINCT rt1.redescriptionID FROM RedescriptionTable as rt1, RedescriptionAttributeTable as rat1, RedescriptionAttributeTable as rat2 WHERE " +
+                        "rt1.redescriptionID = rat1.redescriptionID AND rt1.redescriptionID=rat2.redescriptionID AND rt1.redescriptionID IN (SELECT redescriptionID FROM SelectedRedescriptionsAttr WHERE userId = " +
+                        userId + ") AND rat1.attributeID=" + attribute1 + " " +
+                        "AND rat2.attributeID = " + attribute2 + ")";
                 ResultSet attributesRL1 = stmt.executeQuery(attributesRL1String);
-                while(attributesRL1.next())
-                {
+                while (attributesRL1.next()) {
                     temp.put("id", attributesRL1.getInt("redescriptionID"));
                     Object[] tmpArr = new Object[4];
-                    tmpArr[0]=attributesRL1.getInt("attributeID");
-                    tmpArr[1]=attributesRL1.getString("attributeName");
-                    tmpArr[2]=attributesRL1.getString("attributeDescription");
-                    tmpArr[3]=attributesRL1.getInt("view");
+                    tmpArr[0] = attributesRL1.getInt("attributeID");
+                    tmpArr[1] = attributesRL1.getString("attributeName");
+                    tmpArr[2] = attributesRL1.getString("attributeDescription");
+                    tmpArr[3] = attributesRL1.getInt("view");
                     temp.put("data", tmpArr);
                     redescriptionAttrs.add(temp);
                     temp = new JSONObject();
@@ -2415,16 +2308,14 @@ return res;
                 res.put("redescriptionAttrs", redescriptionAttrs);
 
                 ResultSet elementsSelectedQuery = stmt.executeQuery("SELECT elemName FROM SelectedElements WHERE userId = " + userId);
-                while(elementsSelectedQuery.next())
-                {
+                while (elementsSelectedQuery.next()) {
                     elementsSelected.add(elementsSelectedQuery.getString("elemName"));
                 }
                 res.put("elementsSelected", elementsSelected);
 
-                for(int i=1; i<elementsSelected.size(); i++) {
-                    ResultSet elementsDescriptionSelectedQuery = stmt.executeQuery("SELECT elementDescription FROM ElementTable WHERE elementName = "+"\""+elementsSelected.get(i)+"\"");
-                    while(elementsDescriptionSelectedQuery.next())
-                    {
+                for (int i = 1; i < elementsSelected.size(); i++) {
+                    ResultSet elementsDescriptionSelectedQuery = stmt.executeQuery("SELECT elementDescription FROM ElementTable WHERE elementName = " + "\"" + elementsSelected.get(i) + "\"");
+                    while (elementsDescriptionSelectedQuery.next()) {
                         elementsDescriptionSelected.add(elementsDescriptionSelectedQuery.getString("elementDescription"));
                     }
                 }
@@ -2432,8 +2323,7 @@ return res;
 
             }
             conn.close();
-        }
-        catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -2441,16 +2331,16 @@ return res;
         return res;
     }
 
-    public JSONObject clusrmSettings(Map<String,String> request,DataBaseEnum database){
+    public JSONObject clusrmSettings(JSONObject request, DataBaseEnum database) {
         JSONObject res = new JSONObject();
         JSONObject temp = new JSONObject();
         JSONArray redescriptionArray = new JSONArray();
-        String selected = request.get("selected");
+        String selected = String.valueOf(request.get("selected"));
         String[] selectedArr = selected.split(",");
         selectedArr[0] = selectedArr[0].substring(2, selectedArr[0].length() - 1);
         selectedAttrs = selectedArr[0];
-        for(int i=1; i<selectedArr.length; i++) {
-            if(i==selectedArr.length-1)
+        for (int i = 1; i < selectedArr.length; i++) {
+            if (i == selectedArr.length - 1)
                 selectedArr[i] = selectedArr[i].substring(1, selectedArr[i].length() - 2);
             else selectedArr[i] = selectedArr[i].substring(1, selectedArr[i].length() - 1);
             selectedAttrs += ";" + selectedArr[i];
@@ -2463,44 +2353,44 @@ return res;
         Arrays.fill(trueArr, true);
         //System.out.println("Condition w1:" + request.get("conditionw1"));
         //System.out.println("Condition w2:" + request.get("conditionw2"));
-        String conditionw1 = request.get("conditionw1").substring(1, request.get("conditionw1").length() - 1);
-        if(conditionw1.equals("none")) {
+        String conditionw1 = String.valueOf(request.get("conditionw1")).substring(1, String.valueOf(request.get("conditionw1")).length() - 1);
+        if (conditionw1.equals("none")) {
             selectedAttrs = "";
-            for(int i=1; i<selectedArr.length; i++) {
+            for (int i = 1; i < selectedArr.length; i++) {
                 selectedAttrs += selectedArr[i];
-                i=i+2;
-                if(i<selectedArr.length)
+                i = i + 2;
+                if (i < selectedArr.length)
                     selectedAttrs += ";";
             }
         }
-        String conditionw2 = request.get("conditionw2").substring(1, request.get("conditionw2").length() - 1);
-        if(conditionw2.equals("none")) {
+        String conditionw2 = String.valueOf(request.get("conditionw2")).substring(1, String.valueOf(request.get("conditionw2")).length() - 1);
+        if (conditionw2.equals("none")) {
             selectedAttrs = "";
-            for(int i=0; i<selectedArr.length; i++) {
+            for (int i = 0; i < selectedArr.length; i++) {
                 selectedAttrs += selectedArr[i];
-                i=i+2;
-                if(i<selectedArr.length)
+                i = i + 2;
+                if (i < selectedArr.length)
                     selectedAttrs += ";";
             }
         }
-        String elementsSelected = request.get("elementsSelected");
+        String elementsSelected = String.valueOf(request.get("elementsSelected"));
         String importantElements = "";
-        if(!elementsSelected.equals(""))
+        if (!elementsSelected.equals(""))
             importantElements = elementsSelected.substring(1, elementsSelected.length() - 1);
-        String conditionElementsSelection = request.get("conditionElementsSelection");
+        String conditionElementsSelection = String.valueOf(request.get("conditionElementsSelection"));
         String elementImportance = conditionElementsSelection.substring(1, conditionElementsSelection.length() - 1);
-        Double numRandomRestarts = Double.parseDouble(request.get("numRandomRestarts"));
-        Double numSupplementTrees = Double.parseDouble(request.get("numSupplementTrees"));
-        Double numIterations = Double.parseDouble(request.get("numIterations"));
-        Double numRetRed = Double.parseDouble(request.get("numRetRed"));
-        Double minSupport = Double.parseDouble(request.get("minSupport"));
-        Double maxSupport = Double.parseDouble(request.get("maxSupport"));
-        Double minJS= Double.parseDouble(request.get("minJS"));
-        Double maxPval = Double.parseDouble(request.get("maxPval"));
-        String allowLeftNeg = request.get("allowLeftNeg").substring(1, request.get("allowLeftNeg").length() - 1);
-        String allowRightNeg = request.get("allowRightNeg").substring(1, request.get("allowRightNeg").length() - 1);
-        String allowLeftDisj = request.get("allowLeftDisj").substring(1, request.get("allowLeftDisj").length() - 1);
-        String allowRightDisj = request.get("allowRightDisj").substring(1, request.get("allowRightDisj").length() - 1);
+        Double numRandomRestarts = Double.parseDouble(String.valueOf(request.get("numRandomRestarts")));
+        Double numSupplementTrees = Double.parseDouble(String.valueOf(request.get("numSupplementTrees")));
+        Double numIterations = Double.parseDouble(String.valueOf(request.get("numIterations")));
+        Double numRetRed = Double.parseDouble(String.valueOf(request.get("numRetRed")));
+        Double minSupport = Double.parseDouble(String.valueOf(request.get("minSupport")));
+        Double maxSupport = Double.parseDouble(String.valueOf(request.get("maxSupport")));
+        Double minJS = Double.parseDouble(String.valueOf(request.get("minJS")));
+        Double maxPval = Double.parseDouble(String.valueOf(request.get("maxPval")));
+        String allowLeftNeg = String.valueOf(request.get("allowLeftNeg")).substring(1, String.valueOf(request.get("allowLeftNeg")).length() - 1);
+        String allowRightNeg = String.valueOf(request.get("allowRightNeg")).substring(1, String.valueOf(request.get("allowRightNeg")).length() - 1);
+        String allowLeftDisj = String.valueOf(request.get("allowLeftDisj")).substring(1, String.valueOf(request.get("allowLeftDisj")).length() - 1);
+        String allowRightDisj = String.valueOf(request.get("allowRightDisj")).substring(1, String.valueOf(request.get("allowRightDisj")).length() - 1);
         boolean attImportanceW1 = false, attImportanceW2 = false, importatntAttrs = false, check1 = false, check2 = false;
         String path_file = "/Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set";
         List<String> newLines = new ArrayList<>();
@@ -2508,72 +2398,54 @@ return res;
             for (String line : Files.readAllLines(Paths.get(path_file), StandardCharsets.UTF_8)) {
                 if (line.contains("Input1")) {
                     newLines.add(line.replace(line, "Input1 = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/input1" + database.name + ".arff"));
-                }
-                else if (line.contains("Input2")) {
+                } else if (line.contains("Input2")) {
                     newLines.add(line.replace(line, "Input2 = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/input2" + database.name + ".arff"));
-                }
-                else if (line.contains("numRandomRestarts")) {
+                } else if (line.contains("numRandomRestarts")) {
                     newLines.add(line.replace(line, "numRandomRestarts = " + numRandomRestarts.intValue()));
-                }
-                else if (line.contains("numSupplementTrees")) {
+                } else if (line.contains("numSupplementTrees")) {
                     newLines.add(line.replace(line, "numSupplementTrees = " + numSupplementTrees.intValue()));
-                }
-                else if (line.contains("numIterations")) {
+                } else if (line.contains("numIterations")) {
                     newLines.add(line.replace(line, "numIterations = " + numIterations.intValue()));
-                }
-                else if (line.contains("numRetRed")) {
+                } else if (line.contains("numRetRed")) {
                     newLines.add(line.replace(line, "numRetRed = " + numRetRed.intValue()));
-                }
-                else if (line.contains("MinSupport")) {
+                } else if (line.contains("MinSupport")) {
                     newLines.add(line.replace(line, "MinSupport = " + minSupport.intValue()));
-                }
-                else if (line.contains("MaxSupport")) {
+                } else if (line.contains("MaxSupport")) {
                     newLines.add(line.replace(line, "MaxSupport = " + maxSupport.intValue()));
-                }
-                else if (line.contains("minJS")) {
+                } else if (line.contains("minJS")) {
                     newLines.add(line.replace(line, "minJS = " + minJS));
-                }
-                else if (line.contains("maxPval")) {
+                } else if (line.contains("maxPval")) {
                     newLines.add(line.replace(line, "maxPval = " + maxPval));
-                }
-                else if (line.contains("allowLeftNeg")) {
+                } else if (line.contains("allowLeftNeg")) {
                     newLines.add(line.replace(line, "allowLeftNeg = " + allowLeftNeg));
-                }
-                else if (line.contains("allowRightNeg")) {
+                } else if (line.contains("allowRightNeg")) {
                     newLines.add(line.replace(line, "allowRightNeg = " + allowRightNeg));
-                }
-                else if (line.contains("allowLeftDisj")) {
+                } else if (line.contains("allowLeftDisj")) {
                     newLines.add(line.replace(line, "allowLeftDisj = " + allowLeftDisj));
-                }
-                else if (line.contains("allowRightDisj")) {
+                } else if (line.contains("allowRightDisj")) {
                     newLines.add(line.replace(line, "allowRightDisj = " + allowRightDisj));
-                }
-                else if (line.contains("attributeImportanceW1")) {
+                } else if (line.contains("attributeImportanceW1")) {
                     newLines.add(line.replace(line, "attributeImportanceW1 = " + conditionw1));
                     attImportanceW1 = true;
-                }
-                else if (line.contains("attributeImportanceW2")) {
+                } else if (line.contains("attributeImportanceW2")) {
                     newLines.add(line.replace(line, "attributeImportanceW2 = " + conditionw2));
                     attImportanceW2 = true;
-                }
-                else if (line.contains("importantAttributes")) {
+                } else if (line.contains("importantAttributes")) {
                     newLines.add(line.replace(line, "importantAttributes: " + selectedAttrs));
                     importatntAttrs = true;
-                }
-                else if (line.contains("elementImportance")) {
+                } else if (line.contains("elementImportance")) {
                     newLines.add(line.replace(line, "elementImportance = " + elementImportance));
                     importatntAttrs = true;
-                }
-                else if (line.contains("importantElements")) {
+                } else if (line.contains("importantElements")) {
                     newLines.add(line.replace(line, "importantElements: " + importantElements));
                     importatntAttrs = true;
-                }else {
+                } else {
                     newLines.add(line);
                 }
             }
-            if(attImportanceW1==false) newLines.add("attributeImportanceW1 = " + conditionw1);
-            if(attImportanceW2==false) newLines.add("attributeImportanceW2 = " + conditionw2);
-            if(importatntAttrs==false) newLines.add("importantAttributes: " + selectedAttrs);
+            if (attImportanceW1 == false) newLines.add("attributeImportanceW1 = " + conditionw1);
+            if (attImportanceW2 == false) newLines.add("attributeImportanceW2 = " + conditionw2);
+            if (importatntAttrs == false) newLines.add("importantAttributes: " + selectedAttrs);
             Files.write(Paths.get(path_file), newLines, StandardCharsets.UTF_8);
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -2602,7 +2474,7 @@ return res;
             Scanner myReader = new Scanner(myObj);
             int numberOfRedescriptions = 0;
             String w1R = "", w2R = "", JS = "", pValue = "", intersection = "";
-            boolean next=false;
+            boolean next = false;
             List<String[]> coveredAll = new ArrayList<String[]>();
             List<String[]> attributeNames = new ArrayList<String[]>();
             List<String[]> attributeDescriptions = new ArrayList<String[]>();
@@ -2627,71 +2499,72 @@ return res;
             Set<Integer> unionElements, intersectionElements, unionAttributes, intersectionAttributes;
             while (myReader.hasNextLine()) {
                 String documentLine = myReader.nextLine();
-                if(documentLine.startsWith("W1R: ")) {
+                if (documentLine.startsWith("W1R: ")) {
                     w1R = documentLine.substring(5);
-                    for(int i = 0; i<selectedArr.length; i++) {
-                        if(documentLine.contains(selectedArr[i]))
+                    for (int i = 0; i < selectedArr.length; i++) {
+                        if (documentLine.contains(selectedArr[i]))
                             w1Contains[i] = true;
                     }
                 }
-                if(documentLine.startsWith("W2R: ")) {
+                if (documentLine.startsWith("W2R: ")) {
                     w2R = documentLine.substring(5);
-                    for(int i = 0; i<selectedArr.length; i++) {
-                        if(documentLine.contains(selectedArr[i]))
+                    for (int i = 0; i < selectedArr.length; i++) {
+                        if (documentLine.contains(selectedArr[i]))
                             w2Contains[i] = true;
                     }
                 }
-                if(documentLine.startsWith("JS: ")) {
+                if (documentLine.startsWith("JS: ")) {
                     JS = documentLine.substring(4);
                     JSDouble = Double.parseDouble(JS);
                 }
-                if(documentLine.startsWith("p-value : ")) {
+                if (documentLine.startsWith("p-value : ")) {
                     pValue = documentLine.substring(10);
                     pValueDouble = Double.parseDouble(pValue);
                 }
-                if(documentLine.startsWith("Support intersection: ")) intersection = documentLine.substring(22);
-                if(documentLine.startsWith("Covered examples")) next=true;
-                if(next==true) {
+                if (documentLine.startsWith("Support intersection: ")) intersection = documentLine.substring(22);
+                if (documentLine.startsWith("Covered examples")) next = true;
+                if (next == true) {
                     covered = myReader.nextLine().split(" ");
-                    for(int k=0; k<covered.length; k++) {
+                    for (int k = 0; k < covered.length; k++) {
                         covered[k] = covered[k].substring(1, covered[k].length() - 1);
                     }
                 }
 
-                if(conditionw1.equals("none"))
+                if (conditionw1.equals("none"))
                     check1 = true;
-                if(conditionw2.equals("none"))
+                if (conditionw2.equals("none"))
                     check2 = true;
-                if(conditionw1.equals("soft")) {
-                    for(int i = 0; i<selectedArr.length; i++) {
-                        if(w1Contains[i] == true)
+                if (conditionw1.equals("soft")) {
+                    for (int i = 0; i < selectedArr.length; i++) {
+                        if (w1Contains[i] == true)
                             check1 = true;
                     }
                 }
-                if(conditionw2.equals("soft")) {
-                    for(int i = 0; i<selectedArr.length; i++) {
-                        if(w2Contains[i] == true)
+                if (conditionw2.equals("soft")) {
+                    for (int i = 0; i < selectedArr.length; i++) {
+                        if (w2Contains[i] == true)
                             check2 = true;
                     }
                 }
-                if(conditionw1.equals("hard")) {
-                    if(Arrays.equals(w1Contains, trueArr))
+                if (conditionw1.equals("hard")) {
+                    if (Arrays.equals(w1Contains, trueArr))
                         check1 = true;
                 }
-                if(conditionw2.equals("hard")) {
-                    if(Arrays.equals(w2Contains, trueArr)) {
+                if (conditionw2.equals("hard")) {
+                    if (Arrays.equals(w2Contains, trueArr)) {
                         check2 = true;
                         //System.out.println(w2Contains);
                     }
                 }
-                check1=true; check2=true;
-                if(w1R!="" && w2R!="" && JS!="" && pValue!="" && intersection!="" && next==true) {
-                    if(check1 == true && check2 == true) {
+                check1 = true;
+                check2 = true;
+                if (w1R != "" && w2R != "" && JS != "" && pValue != "" && intersection != "" && next == true) {
+                    if (check1 == true && check2 == true) {
                         //System.out.println(w1R + "\n" + w2R + "\n" + JS + "\n" + pValue);
                         numberOfRedescriptions++;
                         temp.put("id", numberOfRedescriptions);
-                        temp.put("w1",w1R);
-                        temp.put("w2",w2R);
+                        temp.put("w1", w1R);
+                        temp.put("w2", w2R);
                         String[] w1Attributes = w1R.split(" ");
                         String[] w2Attributes = w2R.split(" ");
                         int counter = 0;
@@ -2723,22 +2596,22 @@ return res;
                                 size++;
                             }
                         }
-                        attrs = new String[myAttributes.length/3];
-                        int k=0;
+                        attrs = new String[myAttributes.length / 3];
+                        int k = 0;
                         for (int i = 0; i < myAttributes.length; i++) {
-                           //System.out.println("myAttrs: " + myAttributes[i]);
+                            //System.out.println("myAttrs: " + myAttributes[i]);
                             attrs[k] = myAttributes[i];
-                            i=i+2;
+                            i = i + 2;
                             k++;
                         }
                         //temp.put("maxAEJ", df.format(maxAEJ));
                         //temp.put("AEJ", AEJ);
                         //temp.put("AAJ", AAJ);
-                        temp.put("dfJS",df.format(JSDouble));
-                        temp.put("attrs",attrs);
-                        temp.put("JS",JSDouble);
-                        temp.put("dfpValue",df.format(pValueDouble));
-                        temp.put("pValue",pValueDouble);
+                        temp.put("dfJS", df.format(JSDouble));
+                        temp.put("attrs", attrs);
+                        temp.put("JS", JSDouble);
+                        temp.put("dfpValue", df.format(pValueDouble));
+                        temp.put("pValue", pValueDouble);
                         temp.put("intersection", Integer.parseInt(intersection));
                         temp.put("covered", covered);
                         coveredAll.add(covered);
@@ -2751,7 +2624,12 @@ return res;
                     check2 = false;
                     Arrays.fill(w1Contains, false);
                     Arrays.fill(w2Contains, false);
-                    w1R=""; w2R=""; JS=""; pValue=""; intersection=""; next=false;
+                    w1R = "";
+                    w2R = "";
+                    JS = "";
+                    pValue = "";
+                    intersection = "";
+                    next = false;
                 }
 
             }
@@ -2763,13 +2641,13 @@ return res;
                     int attr = 0;
                     int maxID = 0;
                     ResultSet maxRedescriptionId = stmt.executeQuery("SELECT MAX(redescriptionID) as maxId from RedescriptionTable");
-                    while(maxRedescriptionId.next()){
+                    while (maxRedescriptionId.next()) {
                         maxID = maxRedescriptionId.getInt("maxId");
                     }
                     attributeNameAndDescr = new String[numberOfRedescriptions];
-                    for(int j=0; j<numberOfRedescriptions;j++) {
+                    for (int j = 0; j < numberOfRedescriptions; j++) {
                         for (int i = 0; i < coveredAll.get(j).length; i++) {
-                            ResultSet ElementId = stmt.executeQuery("SELECT elementID from ElementTable WHERE elementName = "+"\""+coveredAll.get(j)[i]+"\"");
+                            ResultSet ElementId = stmt.executeQuery("SELECT elementID from ElementTable WHERE elementName = " + "\"" + coveredAll.get(j)[i] + "\"");
                             while (ElementId.next()) {
                                 element = ElementId.getInt("elementID");
                             }
@@ -2780,7 +2658,7 @@ return res;
                         descriptions = new String[attributeNames.get(j).length];
                         for (int i = 0; i < attributeNames.get(j).length; i++) {
                             //System.out.println(attributeNames.get(j)[i]);
-                            ResultSet AttributeId = stmt.executeQuery("SELECT attributeID, attributeDescription from AttributeTable WHERE attributeName = "+"\""+attributeNames.get(j)[i]+"\"");
+                            ResultSet AttributeId = stmt.executeQuery("SELECT attributeID, attributeDescription from AttributeTable WHERE attributeName = " + "\"" + attributeNames.get(j)[i] + "\"");
                             while (AttributeId.next()) {
                                 attr = AttributeId.getInt("attributeID");
                                 descriptions[i] = AttributeId.getString("attributeDescription");
@@ -2791,15 +2669,15 @@ return res;
                         listOfAttributes.add(Attributes);
                         Attributes = new HashSet<Integer>();
                     }
-                    AEJ = new double[numberOfRedescriptions][maxID+1];
-                    AAJ = new double[numberOfRedescriptions][maxID+1];
+                    AEJ = new double[numberOfRedescriptions][maxID + 1];
+                    AAJ = new double[numberOfRedescriptions][maxID + 1];
                     sumAEJ = new double[numberOfRedescriptions];
                     sumAAJ = new double[numberOfRedescriptions];
                     attJac = new double[numberOfRedescriptions];
                     maxAEJ = new double[numberOfRedescriptions];
                     Set<Integer> redescriptionElements = new HashSet<Integer>();
                     Set<Integer> redescriptionAttributes = new HashSet<Integer>();
-                    for(int i=0; i<=maxID; i++) {
+                    for (int i = 0; i <= maxID; i++) {
                         redescriptionElements = new HashSet<Integer>();
                         String findNamesString = "SELECT elemetID as id " +
                                 "FROM RedescriptionElementTable " +
@@ -2815,7 +2693,7 @@ return res;
                         while (findAttrs.next()) {
                             redescriptionAttributes.add(findAttrs.getInt("id"));
                         }
-                        for(int k=0; k<numberOfRedescriptions; k++) {
+                        for (int k = 0; k < numberOfRedescriptions; k++) {
                             intersectionElements = new HashSet<Integer>(listOfElements.get(k));
                             intersectionElements.retainAll(redescriptionElements);
                             unionElements = new HashSet<>(listOfElements.get(k));
@@ -2827,7 +2705,7 @@ return res;
                             intersectionAttributes.retainAll(redescriptionAttributes);
                             unionAttributes = new HashSet<>(listOfAttributes.get(k));
                             unionAttributes.addAll(redescriptionAttributes);
-                            AAJ[k][i] = (double)intersectionAttributes.size()/unionAttributes.size();
+                            AAJ[k][i] = (double) intersectionAttributes.size() / unionAttributes.size();
                             sumAAJ[k] += AEJ[k][i];
 
                             if (AEJ[k][i] > maxAEJ[k]) {
@@ -2838,7 +2716,7 @@ return res;
                                 //System.out.println("unija: " + unionElements);
                             }
                             if (AEJ[k][i] == maxAEJ[k]) {
-                                if(attJac[k] < AAJ[k][i]) {
+                                if (attJac[k] < AAJ[k][i]) {
                                     maxAEJ[k] = Double.parseDouble(df.format(AEJ[k][i]));
                                     attJac[k] = Double.parseDouble(df.format(AAJ[k][i]));
                                     //System.out.println("max je sada: " + maxAEJ[k] + ", att je: "+ attJac[k] +" za i: " + i);
@@ -2864,30 +2742,30 @@ return res;
             res.put("maxAEJs", maxAEJ);
             res.put("attJac", attJac);
             res.put("redescriptionsCLUS", redescriptionArray);
-            System.out.println("Number of redescriptions: "+ numberOfRedescriptions);
-            res.put("redescriptionsCountCLUS",numberOfRedescriptions);
+            System.out.println("Number of redescriptions: " + numberOfRedescriptions);
+            res.put("redescriptionsCountCLUS", numberOfRedescriptions);
             myReader.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
 
-        res.put("selected",selectedAttrs);
+        res.put("selected", selectedAttrs);
         return res;
     }
 
-    public JSONObject clusrmSettingsElements(JSONObject request,DataBaseEnum database) {
+    public JSONObject clusrmSettingsElements(JSONObject request, DataBaseEnum database) {
 
         JSONParser jsonParser = new JSONParser();
-        String conditionElements= "";
-        String conditionw1selection= "";
-        String conditionw2selection= "";
+        String conditionElements = "";
+        String conditionw1selection = "";
+        String conditionw2selection = "";
         String selectedAttrs = "";
         JSONArray selected = new JSONArray();
         JSONObject res = new JSONObject();
         JSONObject temp = new JSONObject();
         JSONArray redescriptionArray = new JSONArray();
-        String allowLeftNeg="false", allowRightNeg="false", allowLeftDisj="false", allowRightDisj="false";
+        String allowLeftNeg = "false", allowRightNeg = "false", allowLeftDisj = "false", allowRightDisj = "false";
         Double numRandomRestarts = 1.0, numSupplementTrees = 0.0, numIterations = 50.0, numRetRed = 200.0, minSupport = 5.0, maxSupport = 120.0, minJS = 0.5, maxPval = 0.01;
         try {
             selectedAttrs = String.valueOf(request.get("selectedAttrs"));
@@ -2895,29 +2773,29 @@ return res;
             conditionw1selection = String.valueOf(request.get("conditionw1selection"));
             conditionw2selection = String.valueOf(request.get("conditionw2selection"));
             selected = (JSONArray) jsonParser.parse(String.valueOf(request.get("selected")));
-            if(!String.valueOf(request.get("numRandomRestarts")).equals("null"))
+            if (!String.valueOf(request.get("numRandomRestarts")).equals("null"))
                 numRandomRestarts = Double.parseDouble(String.valueOf(request.get("numRandomRestarts")));
-            if(!String.valueOf(request.get("numSupplementTrees")).equals("null"))
+            if (!String.valueOf(request.get("numSupplementTrees")).equals("null"))
                 numSupplementTrees = Double.parseDouble(String.valueOf(request.get("numSupplementTrees")));
-            if(!String.valueOf(request.get("numIterations")).equals("null"))
+            if (!String.valueOf(request.get("numIterations")).equals("null"))
                 numIterations = Double.parseDouble(String.valueOf(request.get("numIterations")));
-            if(!String.valueOf(request.get("numRetRed")).equals("null"))
+            if (!String.valueOf(request.get("numRetRed")).equals("null"))
                 numRetRed = Double.parseDouble(String.valueOf(request.get("numRetRed")));
-            if(!String.valueOf(request.get("minSupport")).equals("null"))
+            if (!String.valueOf(request.get("minSupport")).equals("null"))
                 minSupport = Double.parseDouble(String.valueOf(request.get("minSupport")));
-            if(!String.valueOf(request.get("maxSupport")).equals("null"))
+            if (!String.valueOf(request.get("maxSupport")).equals("null"))
                 maxSupport = Double.parseDouble(String.valueOf(request.get("maxSupport")));
-            if(!String.valueOf(request.get("minJS")).equals("null"))
-                minJS= Double.parseDouble(String.valueOf(request.get("minJS")));
-            if(!String.valueOf(request.get("maxPval")).equals("null"))
+            if (!String.valueOf(request.get("minJS")).equals("null"))
+                minJS = Double.parseDouble(String.valueOf(request.get("minJS")));
+            if (!String.valueOf(request.get("maxPval")).equals("null"))
                 maxPval = Double.parseDouble(String.valueOf(request.get("maxPval")));
-            if(!String.valueOf(request.get("allowLeftNeg")).equals("null"))
+            if (!String.valueOf(request.get("allowLeftNeg")).equals("null"))
                 allowLeftNeg = String.valueOf(request.get("allowLeftNeg")).substring(1, String.valueOf(request.get("allowLeftNeg")).length() - 1);
-            if(!String.valueOf(request.get("allowRightNeg")).equals("null"))
+            if (!String.valueOf(request.get("allowRightNeg")).equals("null"))
                 allowRightNeg = String.valueOf(request.get("allowRightNeg")).substring(1, String.valueOf(request.get("allowRightNeg")).length() - 1);
-            if(!String.valueOf(request.get("allowLeftDisj")).equals("null"))
+            if (!String.valueOf(request.get("allowLeftDisj")).equals("null"))
                 allowLeftDisj = String.valueOf(request.get("allowLeftDisj")).substring(1, String.valueOf(request.get("allowLeftDisj")).length() - 1);
-            if(!String.valueOf(request.get("allowRightDisj")).equals("null"))
+            if (!String.valueOf(request.get("allowRightDisj")).equals("null"))
                 allowRightDisj = String.valueOf(request.get("allowRightDisj")).substring(1, String.valueOf(request.get("allowRightDisj")).length() - 1);
 
         } catch (ParseException e) {
@@ -2938,6 +2816,7 @@ return res;
         while (iterator.hasNext()) {
             JSONObject element = iterator.next();
             Long myLong = (Long) element.get("id");
+            System.out.println("id" + myLong);
             try {
                 Connection conn = connect(database.databaseName);
                 Statement stmt = conn.createStatement();
@@ -2945,8 +2824,8 @@ return res;
                     ResultSet findElementName = stmt.executeQuery("SELECT elementName FROM ElementTable WHERE elementID = " + element.get("id"));
                     while (findElementName.next()) {
                         String elementName = findElementName.getString("elementName");
-                        //System.out.println(elementName);
-                        if(selectedElems == "") selectedElems += "\"" + elementName + "\"";
+                        System.out.println("name" + elementName);
+                        if (selectedElems == "") selectedElems += "\"" + elementName + "\"";
                         else selectedElems += ";\"" + elementName + "\"";
                         selectedElemsArray[countEl] = elementName;
                         countEl++;
@@ -2963,7 +2842,7 @@ return res;
         String selectedAttributes = "";
         String conditionw1 = "none";
         String conditionw2 = "none";
-        if(!selectedAttrs.equals("[]")) {
+        if (!selectedAttrs.equals("[]")) {
             String[] selectedArr = selectedAttrs.split(",");
             selectedArr[0] = selectedArr[0].substring(2, selectedArr[0].length() - 1);
             selectedAttributes = selectedArr[0];
@@ -3002,75 +2881,57 @@ return res;
             for (String line : Files.readAllLines(Paths.get(path_file), StandardCharsets.UTF_8)) {
                 if (line.contains("Input1")) {
                     newLines.add(line.replace(line, "Input1 = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/input1" + database.name + ".arff"));
-                }
-                else if (line.contains("Input2")) {
+                } else if (line.contains("Input2")) {
                     newLines.add(line.replace(line, "Input2 = /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/input2" + database.name + ".arff"));
-                }
-                else if (line.contains("numRandomRestarts")) {
+                } else if (line.contains("numRandomRestarts")) {
                     newLines.add(line.replace(line, "numRandomRestarts = " + numRandomRestarts.intValue()));
-                }
-                else if (line.contains("numSupplementTrees")) {
+                } else if (line.contains("numSupplementTrees")) {
                     newLines.add(line.replace(line, "numSupplementTrees = " + numSupplementTrees.intValue()));
-                }
-                else if (line.contains("numIterations")) {
+                } else if (line.contains("numIterations")) {
                     newLines.add(line.replace(line, "numIterations = " + numIterations.intValue()));
-                }
-                else if (line.contains("numRetRed")) {
+                } else if (line.contains("numRetRed")) {
                     newLines.add(line.replace(line, "numRetRed = " + numRetRed.intValue()));
-                }
-                else if (line.contains("MinSupport")) {
+                } else if (line.contains("MinSupport")) {
                     newLines.add(line.replace(line, "MinSupport = " + minSupport.intValue()));
-                }
-                else if (line.contains("MaxSupport")) {
+                } else if (line.contains("MaxSupport")) {
                     newLines.add(line.replace(line, "MaxSupport = " + maxSupport.intValue()));
-                }
-                else if (line.contains("minJS")) {
+                } else if (line.contains("minJS")) {
                     newLines.add(line.replace(line, "minJS = " + minJS));
-                }
-                else if (line.contains("maxPval")) {
+                } else if (line.contains("maxPval")) {
                     newLines.add(line.replace(line, "maxPval = " + maxPval));
-                }
-                else if (line.contains("allowLeftNeg")) {
+                } else if (line.contains("allowLeftNeg")) {
                     newLines.add(line.replace(line, "allowLeftNeg = " + allowLeftNeg));
-                }
-                else if (line.contains("allowRightNeg")) {
+                } else if (line.contains("allowRightNeg")) {
                     newLines.add(line.replace(line, "allowRightNeg = " + allowRightNeg));
-                }
-                else if (line.contains("allowLeftDisj")) {
+                } else if (line.contains("allowLeftDisj")) {
                     newLines.add(line.replace(line, "allowLeftDisj = " + allowLeftDisj));
-                }
-                else if (line.contains("allowRightDisj")) {
+                } else if (line.contains("allowRightDisj")) {
                     newLines.add(line.replace(line, "allowRightDisj = " + allowRightDisj));
-                }
-                else if (line.contains("elementImportance")) {
+                } else if (line.contains("elementImportance")) {
                     newLines.add(line.replace(line, "elementImportance = " + condition));
                     elementImportance = true;
-                }
-                else if (line.contains("importantElements")) {
+                } else if (line.contains("importantElements")) {
                     newLines.add(line.replace(line, "importantElements: " + selectedElems));
                     importantElements = true;
-                }
-                else if (line.contains("attributeImportanceW1")) {
+                } else if (line.contains("attributeImportanceW1")) {
                     newLines.add(line.replace(line, "attributeImportanceW1 = " + conditionw1));
-                }
-                else if (line.contains("attributeImportanceW2")) {
+                } else if (line.contains("attributeImportanceW2")) {
                     newLines.add(line.replace(line, "attributeImportanceW2 = " + conditionw2));
-                }
-                else if (line.contains("importantAttributes")) {
+                } else if (line.contains("importantAttributes")) {
                     newLines.add(line.replace(line, "importantAttributes: " + selectedAttributes));
-                }else {
+                } else {
                     newLines.add(line);
                 }
             }
-            if(elementImportance==false) newLines.add("elementImportance = " + condition);
-            if(importantElements==false) newLines.add("importantElements: " + selectedElems);
+            if (elementImportance == false) newLines.add("elementImportance = " + condition);
+            if (importantElements == false) newLines.add("importantElements: " + selectedElems);
             Files.write(Paths.get(path_file), newLines, StandardCharsets.UTF_8);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
 
-        try {
+        /*try {
             //System.out.println("try catch pokretanje clusrm algoritma");
             //Process proc = Runtime.getRuntime().exec("/Library/java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home/bin/java -jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/out/artifacts/RMWConstrainedAdaptive_jar/RMWConstrainedAdaptive.jar /Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/SettingsNoNet.set");
             //proc.waitFor();
@@ -3085,14 +2946,14 @@ return res;
         }
         catch(Throwable e){
             System.out.println("greška");
-        }
+        }*/
 
         try {
             File myObj = new File("/Users/ivakozjak/Desktop/diplomski/RMWConstrainedAdaptive/redescriptionsGuidedExperimentalIterativeNoNetworkTestingNew1.rr");
             Scanner myReader = new Scanner(myObj);
             int numberOfRedescriptions = 0;
             String w1R = "", w2R = "", JS = "", pValue = "", intersection = "";
-            boolean next=false;
+            boolean next = false;
             List<String[]> coveredAll = new ArrayList<String[]>();
             List<String[]> attributeNames = new ArrayList<String[]>();
             String[] covered = new String[0];
@@ -3116,30 +2977,30 @@ return res;
             Set<Integer> unionElements, intersectionElements, intersectionElementsCluster, unionElementsCluster, unionAttributes, intersectionAttributes;
             while (myReader.hasNextLine()) {
                 String documentLine = myReader.nextLine();
-                if(documentLine.startsWith("W1R: ")) {
+                if (documentLine.startsWith("W1R: ")) {
                     w1R = documentLine.substring(5);
                 }
-                if(documentLine.startsWith("W2R: ")) {
+                if (documentLine.startsWith("W2R: ")) {
                     w2R = documentLine.substring(5);
                 }
-                if(documentLine.startsWith("JS: ")) {
+                if (documentLine.startsWith("JS: ")) {
                     JS = documentLine.substring(4);
                     JSDouble = Double.parseDouble(JS);
                 }
-                if(documentLine.startsWith("p-value : ")) {
+                if (documentLine.startsWith("p-value : ")) {
                     pValue = documentLine.substring(10);
                     pValueDouble = Double.parseDouble(pValue);
                 }
-                if(documentLine.startsWith("Support intersection: ")) intersection = documentLine.substring(22);
-                if(documentLine.startsWith("Covered examples")) next=true;
-                if(next==true) {
+                if (documentLine.startsWith("Support intersection: ")) intersection = documentLine.substring(22);
+                if (documentLine.startsWith("Covered examples")) next = true;
+                if (next == true) {
                     covered = myReader.nextLine().split(" ");
-                    for(int k=0; k<covered.length; k++) {
+                    for (int k = 0; k < covered.length; k++) {
                         covered[k] = covered[k].substring(1, covered[k].length() - 1);
                     }
                 }
-                if(w1R!="" && w2R!="" && JS!="" && pValue!="" && intersection!="" && next==true) {
-                    boolean check=true;
+                if (w1R != "" && w2R != "" && JS != "" && pValue != "" && intersection != "" && next == true) {
+                    boolean check = true;
                     /*int countEqual = 0;
                     boolean check = false;
                     if(condition.equals("none")) check=true;
@@ -3165,7 +3026,7 @@ return res;
                         if(countEqual== selectedElemsArray.length) check=true;
                     }*/
                     //System.out.println(countEqual);
-                    if(check==true) {
+                    if (check == true) {
                         numberOfRedescriptions++;
                         temp.put("id", numberOfRedescriptions);
                         temp.put("w1", w1R);
@@ -3210,7 +3071,7 @@ return res;
                         }
                         temp.put("dfJS", df.format(JSDouble));
                         temp.put("JS", JSDouble);
-                        temp.put("attrs",attrs);
+                        temp.put("attrs", attrs);
                         temp.put("dfpValue", df.format(pValueDouble));
                         temp.put("pValue", pValueDouble);
                         temp.put("intersection", Integer.parseInt(intersection));
@@ -3221,7 +3082,12 @@ return res;
                         temp = new JSONObject();
                         //maxAEJ = 0; //AEJ = new double[0]; //AAJ = new double[0];
                     }
-                    w1R=""; w2R=""; JS=""; pValue=""; intersection=""; next=false;
+                    w1R = "";
+                    w2R = "";
+                    JS = "";
+                    pValue = "";
+                    intersection = "";
+                    next = false;
                 }
 
             }
@@ -3234,12 +3100,12 @@ return res;
                     int attr = 0;
                     int maxID = 0;
                     ResultSet maxRedescriptionId = stmt.executeQuery("SELECT MAX(redescriptionID) as maxId from RedescriptionTable");
-                    while(maxRedescriptionId.next()){
+                    while (maxRedescriptionId.next()) {
                         maxID = maxRedescriptionId.getInt("maxId");
                     }
-                    for(int j=0; j<numberOfRedescriptions;j++) {
+                    for (int j = 0; j < numberOfRedescriptions; j++) {
                         for (int i = 0; i < coveredAll.get(j).length; i++) {
-                            ResultSet ElementId = stmt.executeQuery("SELECT elementID, elementDescription from ElementTable WHERE elementName = "+"\""+coveredAll.get(j)[i]+"\"");
+                            ResultSet ElementId = stmt.executeQuery("SELECT elementID, elementDescription from ElementTable WHERE elementName = " + "\"" + coveredAll.get(j)[i] + "\"");
                             while (ElementId.next()) {
                                 element = ElementId.getInt("elementID");
                                 elementDescription = ElementId.getString("elementDescription");
@@ -3256,7 +3122,7 @@ return res;
                         Elements = new HashSet<Integer>();
                         for (int i = 0; i < attributeNames.get(j).length; i++) {
                             //System.out.println(attributeNames.get(j)[i]);
-                            ResultSet AttributeId = stmt.executeQuery("SELECT attributeID from AttributeTable WHERE attributeName = "+"\""+attributeNames.get(j)[i]+"\"");
+                            ResultSet AttributeId = stmt.executeQuery("SELECT attributeID from AttributeTable WHERE attributeName = " + "\"" + attributeNames.get(j)[i] + "\"");
                             while (AttributeId.next()) {
                                 attr = AttributeId.getInt("attributeID");
                             }
@@ -3269,8 +3135,8 @@ return res;
                         Attributes = new HashSet<Integer>();
                     }
                     //System.out.println(listOfAttributes);
-                    AEJ = new double[numberOfRedescriptions][maxID+1];
-                    AAJ = new double[numberOfRedescriptions][maxID+1];
+                    AEJ = new double[numberOfRedescriptions][maxID + 1];
+                    AAJ = new double[numberOfRedescriptions][maxID + 1];
                     sumAEJ = new double[numberOfRedescriptions];
                     sumAAJ = new double[numberOfRedescriptions];
                     EJsel = new double[numberOfRedescriptions];
@@ -3278,7 +3144,7 @@ return res;
                     maxAEJ = new double[numberOfRedescriptions];
                     Set<Integer> redescriptionElements = new HashSet<Integer>();
                     Set<Integer> redescriptionAttributes = new HashSet<Integer>();
-                    for(int i=0; i<=maxID; i++) {
+                    for (int i = 0; i <= maxID; i++) {
                         redescriptionElements = new HashSet<Integer>();
                         String findNamesString = "SELECT elemetID as id " +
                                 "FROM RedescriptionElementTable " +
@@ -3295,7 +3161,7 @@ return res;
                         while (findAttrs.next()) {
                             redescriptionAttributes.add(findAttrs.getInt("id"));
                         }
-                        for(int k=0; k<numberOfRedescriptions; k++) {
+                        for (int k = 0; k < numberOfRedescriptions; k++) {
                             intersectionElements = new HashSet<Integer>(listOfElements.get(k));
                             intersectionElements.retainAll(redescriptionElements);
                             intersectionElementsCluster = new HashSet<Integer>(listOfElementsCluster.get(0));
@@ -3313,7 +3179,7 @@ return res;
                             intersectionAttributes.retainAll(redescriptionAttributes);
                             unionAttributes = new HashSet<>(listOfAttributes.get(k));
                             unionAttributes.addAll(redescriptionAttributes);
-                            AAJ[k][i] = (double)intersectionAttributes.size()/unionAttributes.size();
+                            AAJ[k][i] = (double) intersectionAttributes.size() / unionAttributes.size();
                             sumAAJ[k] += AEJ[k][i];
 
                             if (AEJ[k][i] > maxAEJ[k]) {
@@ -3327,7 +3193,7 @@ return res;
                                 //System.out.println("unija atrs: " + unionAttributes);
                             }
                             if (AEJ[k][i] == maxAEJ[k]) {
-                                if(attJac[k] < AAJ[k][i]) {
+                                if (attJac[k] < AAJ[k][i]) {
                                     maxAEJ[k] = Double.parseDouble(df.format(AEJ[k][i]));
                                     attJac[k] = Double.parseDouble(df.format(AAJ[k][i]));
                                     //System.out.println("max je sada: " + maxAEJ[k] + ", att je: "+ attJac[k] +" za i: " + i);
@@ -3352,20 +3218,20 @@ return res;
             res.put("maxAEJs", maxAEJ);
             res.put("attJac", attJac);
             res.put("redescriptionsCLUS", redescriptionArray);
-            System.out.println("Number of redescriptions: "+ numberOfRedescriptions);
-            res.put("redescriptionsCountCLUS",numberOfRedescriptions);
+            System.out.println("Number of redescriptions: " + numberOfRedescriptions);
+            res.put("redescriptionsCountCLUS", numberOfRedescriptions);
             myReader.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
 
-        res.put("selected",selectedAttrs);
+        res.put("selected", selectedAttrs);
 
         return res;
     }
 
-    public JSONObject saveCLUSRMRedescriptions(JSONObject request,DataBaseEnum database) {
+    public JSONObject saveCLUSRMRedescriptions(JSONObject request, DataBaseEnum database) {
 
         JSONParser jsonParser = new JSONParser();
         JSONArray redescriptionsCLUS = new JSONArray();
@@ -3394,8 +3260,8 @@ return res;
 
         String[] saveSelected = selectedToSave.split(" , ");
         saveSelected[0] = saveSelected[0].substring(1, saveSelected[0].length());
-        saveSelected[saveSelected.length-1] = saveSelected[saveSelected.length-1].substring(0, saveSelected[saveSelected.length-1].length()-1);
-        for(int a=0; a<saveSelected.length; a++)
+        saveSelected[saveSelected.length - 1] = saveSelected[saveSelected.length - 1].substring(0, saveSelected[saveSelected.length - 1].length() - 1);
+        for (int a = 0; a < saveSelected.length; a++)
             System.out.println(saveSelected[a]);
 
         Double[][] AEJSelected = new Double[saveSelected.length][saveSelected.length];
@@ -3403,15 +3269,15 @@ return res;
         Double[] sumNewAEJ = new Double[saveSelected.length];
         Double[] sumNewAAJ = new Double[saveSelected.length];
 
-        for(int b=0; b<saveSelected.length; b++) {
-            JSONObject redescriptionB = (JSONObject) redescriptionsCLUS.get(Integer.parseInt(saveSelected[b])-1);
+        for (int b = 0; b < saveSelected.length; b++) {
+            JSONObject redescriptionB = (JSONObject) redescriptionsCLUS.get(Integer.parseInt(saveSelected[b]) - 1);
             JSONArray coveredB = (JSONArray) redescriptionB.get("covered");
             Set<Object> coveredBSet = new HashSet<Object>();
             JSONArray attrsB = (JSONArray) redescriptionB.get("attrs");
             Set<Object> attrsBSet = new HashSet<Object>();
-            for(int i=0; i<coveredB.size(); i++)
+            for (int i = 0; i < coveredB.size(); i++)
                 coveredBSet.add(coveredB.get(i));
-            for(int i=0; i<attrsB.size(); i++)
+            for (int i = 0; i < attrsB.size(); i++)
                 attrsBSet.add(attrsB.get(i));
 
             AEJSelected[b][b] = Double.valueOf(1);
@@ -3420,11 +3286,11 @@ return res;
             sumNewAEJ[b] = (Double) sumAEJ.get(b);
             sumNewAAJ[b] = (Double) sumAAJ.get(b);
 
-            for(int a=0; a<b; a++) {
-                JSONObject redescriptionA = (JSONObject) redescriptionsCLUS.get(Integer.parseInt(saveSelected[a])-1);
+            for (int a = 0; a < b; a++) {
+                JSONObject redescriptionA = (JSONObject) redescriptionsCLUS.get(Integer.parseInt(saveSelected[a]) - 1);
                 JSONArray coveredA = (JSONArray) redescriptionA.get("covered");
                 Set<Object> coveredASet = new HashSet<Object>();
-                for(int i=0; i<coveredA.size(); i++)
+                for (int i = 0; i < coveredA.size(); i++)
                     coveredASet.add(coveredA.get(i));
                 HashSet<Object> intersectionElements = new HashSet<Object>(coveredBSet);
                 intersectionElements.retainAll(coveredASet);
@@ -3437,7 +3303,7 @@ return res;
 
                 JSONArray attrsA = (JSONArray) redescriptionA.get("attrs");
                 Set<Object> attrsASet = new HashSet<Object>();
-                for(int i=0; i<attrsA.size(); i++)
+                for (int i = 0; i < attrsA.size(); i++)
                     attrsASet.add(attrsA.get(i));
                 HashSet<Object> intersectionAttrs = new HashSet<Object>(attrsBSet);
                 intersectionAttrs.retainAll(attrsASet);
@@ -3471,24 +3337,24 @@ return res;
                     maxID = maxRedescriptionId.getInt("maxId");
                 }
 
-                for(int i=0; i<=maxID; i++) {
+                for (int i = 0; i <= maxID; i++) {
                     double AEJupdate = 0, AAJupdate = 0;
                     ResultSet redescriptionAAJAEJ = stmt.executeQuery("SELECT redescriptionAEJ as AEJ, redescriptionAAJ as AAJ from RedescriptionTable " +
-                            "WHERE redescriptionID = " +i);
+                            "WHERE redescriptionID = " + i);
                     while (redescriptionAAJAEJ.next()) {
                         AEJupdate = redescriptionAAJAEJ.getDouble("AEJ");
                         AAJupdate = redescriptionAAJAEJ.getDouble("AAJ");
                         //System.out.println(AEJupdate + ", " + AAJupdate);
                     }
-                    AEJupdate = AEJupdate * (maxID-1);
-                    AAJupdate = AAJupdate * (maxID-1);
+                    AEJupdate = AEJupdate * (maxID - 1);
+                    AAJupdate = AAJupdate * (maxID - 1);
                     int countToId = 0;
                     int updated = 0;
                     JSONArray aaj = new JSONArray();
                     Iterator<JSONArray> iterator = AAJs.iterator();
-                    while(iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         countToId++;
-                        for(int a=0; a<saveSelected.length; a++) {
+                        for (int a = 0; a < saveSelected.length; a++) {
                             if (countToId == Integer.parseInt(saveSelected[a])) {
                                 updated++;
                                 //System.out.println("ulazi za id=" + countToId);
@@ -3498,16 +3364,16 @@ return res;
                                 //System.out.println("aaj update: " + AAJupdate);
                             }
                         }
-                        if(updated == saveSelected.length) {
+                        if (updated == saveSelected.length) {
                             break;
                         }
                     }
                     countToId = 0;
                     JSONArray aej = new JSONArray();
                     Iterator<JSONArray> iterator2 = AEJs.iterator();
-                    while(iterator2.hasNext()){
+                    while (iterator2.hasNext()) {
                         countToId++;
-                        for(int a=0; a<saveSelected.length; a++) {
+                        for (int a = 0; a < saveSelected.length; a++) {
                             if (countToId == Integer.parseInt(saveSelected[a])) {
                                 //System.out.println("ulazi za id=" + countToId);
                                 aej = iterator.next();
@@ -3515,15 +3381,15 @@ return res;
                                 //System.out.println("aej update: " + AEJupdate);
                             }
                         }
-                        if(updated == saveSelected.length) {
+                        if (updated == saveSelected.length) {
                             break;
                         }
                     }
-                    AEJupdate = AEJupdate / (maxID+count);
-                    AAJupdate = AAJupdate / (maxID+count);
+                    AEJupdate = AEJupdate / (maxID + count);
+                    AAJupdate = AAJupdate / (maxID + count);
                     //System.out.println("update: "+AEJupdate + " " + AAJupdate);
                     stmt.execute("UPDATE RedescriptionTable SET redescriptionAEJ = " + AEJupdate +
-                            ", redescriptionAEJ = " + AAJupdate + " where redescriptionID = " +i);
+                            ", redescriptionAEJ = " + AAJupdate + " where redescriptionID = " + i);
                 }
 
             }
@@ -3535,7 +3401,7 @@ return res;
         while (iteratorRed.hasNext()) {
             JSONObject redescription = iteratorRed.next();
             for (int sel = 0; sel < saveSelected.length; sel++) {
-                if ((Long)redescription.get("id") == Long.parseLong(saveSelected[sel])) {
+                if ((Long) redescription.get("id") == Long.parseLong(saveSelected[sel])) {
                     //System.out.println("poklapa se za: " + redescription.get("id"));
                     int id = ((Long) redescription.get("id")).intValue();
                     //System.out.println(redescription);
@@ -3599,37 +3465,37 @@ return res;
                             }
 
                             PreparedStatement insertPstmt = conn.prepareStatement("INSERT INTO RedescriptionTable VALUES (?,?,?,?,?,?,?,?)");
-                            insertPstmt.setInt(1, maxID+1);
+                            insertPstmt.setInt(1, maxID + 1);
                             insertPstmt.setString(2, (String) redescription.get("w1"));
                             insertPstmt.setString(3, (String) redescription.get("w2"));
-                            insertPstmt.setDouble(4, (Double) Double.parseDouble(""+redescription.get("JS")));
-                            insertPstmt.setLong(5, (Long) Long.parseLong(""+redescription.get("intersection")));
-                            insertPstmt.setDouble(6, Double.parseDouble(""+redescription.get("pValue")));
-                            insertPstmt.setDouble(7, (Double)AEJ/maxID);
-                            insertPstmt.setDouble(8, (Double)AAJ/maxID);
+                            insertPstmt.setDouble(4, (Double) Double.parseDouble("" + redescription.get("JS")));
+                            insertPstmt.setLong(5, (Long) Long.parseLong("" + redescription.get("intersection")));
+                            insertPstmt.setDouble(6, Double.parseDouble("" + redescription.get("pValue")));
+                            insertPstmt.setDouble(7, (Double) AEJ / maxID);
+                            insertPstmt.setDouble(8, (Double) AAJ / maxID);
                             insertPstmt.executeUpdate();
 
-                            for(int i=0; i<myAttributes.length; i++) {
+                            for (int i = 0; i < myAttributes.length; i++) {
                                 int frequency = 0;
                                 int[] myAttId = new int[2];
                                 ResultSet freqAtt = stmt.executeQuery("SELECT frequency as freq from AttributeFrequencyTable " +
-                                        "WHERE attributeName = "+"\""+myAttributes[i]+"\""+" AND userId = " + userId);
+                                        "WHERE attributeName = " + "\"" + myAttributes[i] + "\"" + " AND userId = " + userId);
                                 while (freqAtt.next()) {
                                     frequency = freqAtt.getInt("freq");
                                 }
                                 frequency++;
                                 //System.out.println("freq: " + frequency);
                                 stmt.execute("UPDATE AttributeFrequencyTable SET frequency = " + frequency +
-                                        " where attributeName = "+"\""+myAttributes[i]+"\""+" AND userId = " + userId);
-                                for(int j=0; j<myAttributes.length; j++) {
-                                    if(i!=j){
+                                        " where attributeName = " + "\"" + myAttributes[i] + "\"" + " AND userId = " + userId);
+                                for (int j = 0; j < myAttributes.length; j++) {
+                                    if (i != j) {
                                         ResultSet attId = stmt.executeQuery("SELECT attributeID as id from AttributeFrequencyTable " +
-                                                "WHERE attributeName = "+"\""+myAttributes[i]+"\"");
+                                                "WHERE attributeName = " + "\"" + myAttributes[i] + "\"");
                                         while (attId.next()) {
                                             myAttId[0] = attId.getInt("id");
                                         }
                                         ResultSet attId2 = stmt.executeQuery("SELECT attributeID as id from AttributeFrequencyTable " +
-                                                "WHERE attributeName = "+"\""+myAttributes[j]+"\"");
+                                                "WHERE attributeName = " + "\"" + myAttributes[j] + "\"");
                                         while (attId2.next()) {
                                             myAttId[1] = attId2.getInt("id");
                                         }
@@ -3641,15 +3507,14 @@ return res;
                                         }
                                         cooc++;
                                         //System.out.println("cooc: " + cooc);
-                                        if(cooc == 1) {
+                                        if (cooc == 1) {
                                             PreparedStatement insertCooc = conn.prepareStatement("INSERT INTO AttributeCoocurenceTable VALUES (?,?,?,?)");
                                             insertCooc.setLong(1, userId);
                                             insertCooc.setInt(2, cooc);
                                             insertCooc.setInt(3, myAttId[0]);
                                             insertCooc.setInt(4, myAttId[1]);
                                             insertCooc.executeUpdate();
-                                        }
-                                        else {
+                                        } else {
                                             stmt.execute("UPDATE AttributeCoocurenceTable SET coocurence = " + cooc +
                                                     " WHERE attributeID1 = " + myAttId[0] + " AND attributeID2 = " + myAttId[1] + " AND userId = " + userId);
                                         }
@@ -3657,42 +3522,41 @@ return res;
                                 }
                             }
 
-                            for(int i=0; i<covered.size(); i++) {
+                            for (int i = 0; i < covered.size(); i++) {
                                 int elId = 0, coverage = 0, coverageBack = 0;
-                                    ResultSet ElementId = stmt.executeQuery("SELECT elementID from ElementTable WHERE elementName = "+"\""+covered.get(i)+"\"");
-                                    while (ElementId.next()) {
-                                        elId = ElementId.getInt("elementID");
-                                    }
-                                    PreparedStatement insertElem = conn.prepareStatement("INSERT INTO RedescriptionElementTable VALUES (?,?)");
-                                    insertElem.setInt(1, maxID+1);
-                                    insertElem.setInt(2, elId);
-                                    insertElem.executeUpdate();
+                                ResultSet ElementId = stmt.executeQuery("SELECT elementID from ElementTable WHERE elementName = " + "\"" + covered.get(i) + "\"");
+                                while (ElementId.next()) {
+                                    elId = ElementId.getInt("elementID");
+                                }
+                                PreparedStatement insertElem = conn.prepareStatement("INSERT INTO RedescriptionElementTable VALUES (?,?)");
+                                insertElem.setInt(1, maxID + 1);
+                                insertElem.setInt(2, elId);
+                                insertElem.executeUpdate();
 
-                                    ResultSet ElementCoverage = stmt.executeQuery("SELECT redescriptionCount from ElementCoverage WHERE elementID = "
-                                            + elId + " AND userId = " + userId);
-                                    while (ElementCoverage.next()) {
-                                        coverage = ElementCoverage.getInt("redescriptionCount");
-                                    }
-                                    coverage++;
-                                    if(coverage == 1) {
-                                        PreparedStatement insertCov = conn.prepareStatement("INSERT INTO ElementCoverage VALUES (?,?,?)");
-                                        insertCov.setLong(1, userId);
-                                        insertCov.setInt(2, elId);
-                                        insertCov.setInt(3, coverage);
-                                        insertCov.executeUpdate();
-                                    }
-                                    else {
-                                        stmt.execute("UPDATE ElementCoverage SET redescriptionCount = " + coverage +
-                                                " where elementID = " + elId + " AND userId = " + userId);
-                                    }
+                                ResultSet ElementCoverage = stmt.executeQuery("SELECT redescriptionCount from ElementCoverage WHERE elementID = "
+                                        + elId + " AND userId = " + userId);
+                                while (ElementCoverage.next()) {
+                                    coverage = ElementCoverage.getInt("redescriptionCount");
+                                }
+                                coverage++;
+                                if (coverage == 1) {
+                                    PreparedStatement insertCov = conn.prepareStatement("INSERT INTO ElementCoverage VALUES (?,?,?)");
+                                    insertCov.setLong(1, userId);
+                                    insertCov.setInt(2, elId);
+                                    insertCov.setInt(3, coverage);
+                                    insertCov.executeUpdate();
+                                } else {
+                                    stmt.execute("UPDATE ElementCoverage SET redescriptionCount = " + coverage +
+                                            " where elementID = " + elId + " AND userId = " + userId);
+                                }
 
-                                    ResultSet ElementCoverageBack = stmt.executeQuery("SELECT redescriptionCount from ElementCoverageBack WHERE elementID = " + elId);
-                                    while (ElementCoverageBack.next()) {
-                                        coverageBack = ElementCoverageBack.getInt("redescriptionCount");
-                                    }
-                                    coverageBack++;
-                                    stmt.execute("UPDATE ElementCoverageBack SET redescriptionCount = " + coverage +
-                                            " where elementID = " + elId);
+                                ResultSet ElementCoverageBack = stmt.executeQuery("SELECT redescriptionCount from ElementCoverageBack WHERE elementID = " + elId);
+                                while (ElementCoverageBack.next()) {
+                                    coverageBack = ElementCoverageBack.getInt("redescriptionCount");
+                                }
+                                coverageBack++;
+                                stmt.execute("UPDATE ElementCoverageBack SET redescriptionCount = " + coverage +
+                                        " where elementID = " + elId);
                             }
 
                             /*for(int i=0; i<myAttributes.length; i++) {
@@ -3715,15 +3579,15 @@ return res;
 
                             int numDis = 0;
                             String[] ruleString = new String[2];
-                            ruleString[0]=w1;
-                            ruleString[1]=w2;
-                            for(int i=0; i<2; i++) {
-                                if(i==1) numDis--;
+                            ruleString[0] = w1;
+                            ruleString[1] = w2;
+                            for (int i = 0; i < 2; i++) {
+                                if (i == 1) numDis--;
                                 String tmp1[] = ruleString[i].split(" OR ");
                                 for (int z = 0; z < tmp1.length; z++) {
                                     int negated = 0;
                                     String tmpDis = tmp1[z];
-                                   //System.out.println("tmpDis: " + tmpDis);
+                                    //System.out.println("tmpDis: " + tmpDis);
                                     if (tmpDis.contains("NOT")) {
                                         negated = 1;
                                         tmpDis = tmpDis.replace("NOT", "");
@@ -3736,8 +3600,7 @@ return res;
                                             b.replace(tmpDis.lastIndexOf(")"), tmpDis.lastIndexOf(")") + 1, "");
                                             tmpDis = b.toString();
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         tmpDis = tmpDis.replaceFirst("\\(", "");
                                         if (tmpDis.contains(")")) {
                                             StringBuilder b = new StringBuilder(tmpDis);
@@ -3762,7 +3625,7 @@ return res;
 
                                         String aTT1[] = null;
                                         if (atT.contains("<=")) {
-                                            if(aTT[1].contains(")"))
+                                            if (aTT[1].contains(")"))
                                                 aTT[1].replaceFirst("\\)", "");
                                             aTT1 = aTT[1].split("<=");
                                         } else {
@@ -3771,7 +3634,7 @@ return res;
                                             aTT1[1] = null;
                                         }
 
-                                        if(aTT[0].contains("("))
+                                        if (aTT[0].contains("("))
                                             aTT[0].replaceFirst("\\(", "");
                                         String atribute = aTT[0].trim();
                                         ArrayList<Double> boundaries = new ArrayList<>();
@@ -3787,41 +3650,40 @@ return res;
                                         if (negated == 0) {
                                             //System.out.println(numDis + ", " + aTT1[0] + ", " + aTT1[1] + ", " + aTT[0] + ", " + negated);
                                             int atId = 0;
-                                            ResultSet AttrId = stmt.executeQuery("SELECT attributeID from AttributeTable WHERE attributeName = "+"\""+aTT[0]+"\"");
+                                            ResultSet AttrId = stmt.executeQuery("SELECT attributeID from AttributeTable WHERE attributeName = " + "\"" + aTT[0] + "\"");
                                             while (AttrId.next()) {
                                                 atId = AttrId.getInt("attributeID");
                                             }
                                             PreparedStatement insertAtr = conn.prepareStatement("INSERT INTO RedescriptionAttributeTable VALUES (?,?,?,?,?,?)");
-                                            insertAtr.setInt(1, maxID+1);
+                                            insertAtr.setInt(1, maxID + 1);
                                             insertAtr.setInt(2, numDis);
                                             insertAtr.setInt(3, atId);
-                                            if(aTT1[0]!=null)
+                                            if (aTT1[0] != null)
                                                 insertAtr.setDouble(4, Double.parseDouble(aTT1[0]));
                                             else
                                                 insertAtr.setNull(4, Types.NULL);
-                                            if(aTT1[1]!=null)
+                                            if (aTT1[1] != null)
                                                 insertAtr.setDouble(5, Double.parseDouble(aTT1[1]));
                                             else
                                                 insertAtr.setNull(5, Types.NULL);
                                             insertAtr.setInt(6, negated);
                                             insertAtr.executeUpdate();
-                                        }
-                                        else {
+                                        } else {
                                             //System.out.println(numDis + ", " + aTT1[0] + ", " + aTT1[1] + ", " + aTT[0] + ", " + negated);
                                             int atId = 0;
-                                            ResultSet AttrId = stmt.executeQuery("SELECT attributeID from AttributeTable WHERE attributeName = "+"\""+aTT[0]+"\"");
+                                            ResultSet AttrId = stmt.executeQuery("SELECT attributeID from AttributeTable WHERE attributeName = " + "\"" + aTT[0] + "\"");
                                             while (AttrId.next()) {
                                                 atId = AttrId.getInt("attributeID");
                                             }
                                             PreparedStatement insertAtr = conn.prepareStatement("INSERT INTO RedescriptionAttributeTable VALUES (?,?,?,?,?,?)");
-                                            insertAtr.setInt(1, maxID+1);
+                                            insertAtr.setInt(1, maxID + 1);
                                             insertAtr.setInt(2, numDis);
                                             insertAtr.setInt(3, atId);
-                                            if(aTT1[0]!=null)
+                                            if (aTT1[0] != null)
                                                 insertAtr.setDouble(4, Double.parseDouble(aTT1[0]));
                                             else
                                                 insertAtr.setNull(4, Types.NULL);
-                                            if(aTT1[1]!=null)
+                                            if (aTT1[1] != null)
                                                 insertAtr.setDouble(5, Double.parseDouble(aTT1[1]));
                                             else
                                                 insertAtr.setNull(5, Types.NULL);
@@ -3837,18 +3699,18 @@ return res;
                             }
 
                             PreparedStatement insertRed = conn.prepareStatement("INSERT INTO SelectedRedescriptionsElemBack VALUES (?)");
-                            insertRed.setInt(1, maxID+1);
+                            insertRed.setInt(1, maxID + 1);
                             insertRed.executeUpdate();
 
                             PreparedStatement insertSelRed = conn.prepareStatement("INSERT INTO SelectedRedescriptionsAttr VALUES (?,?)");
                             insertSelRed.setLong(1, userId);
-                            insertSelRed.setInt(2, maxID+1);
+                            insertSelRed.setInt(2, maxID + 1);
                             insertSelRed.executeUpdate();
 
-                            JSONArray AEJsSelected = (JSONArray) AEJs.get(id-1);
-                            JSONArray AAJsSelected = (JSONArray) AAJs.get(id-1);
-                            for(int i=0; i<maxID+1; i++){
-                                if(AEJsSelected.size()-i>0) {
+                            JSONArray AEJsSelected = (JSONArray) AEJs.get(id - 1);
+                            JSONArray AAJsSelected = (JSONArray) AAJs.get(id - 1);
+                            for (int i = 0; i < maxID + 1; i++) {
+                                if (AEJsSelected.size() - i > 0) {
                                     PreparedStatement insertGraph = conn.prepareStatement("INSERT INTO GraphTable VALUES (?,?,?)");
                                     insertGraph.setLong(1, i);
                                     insertGraph.setInt(2, maxID + 1);
@@ -3872,31 +3734,30 @@ return res;
                                     insertGraphAttr1.setInt(2, i);
                                     insertGraphAttr1.setDouble(3, (Double) Double.parseDouble("" + AAJsSelected.get(i)));
                                     insertGraphAttr1.executeUpdate();
-                                }
-                                else {
+                                } else {
                                     //System.out.println("sel: " + sel);
                                     PreparedStatement insertGraph = conn.prepareStatement("INSERT INTO GraphTable VALUES (?,?,?)");
                                     insertGraph.setLong(1, i);
                                     insertGraph.setInt(2, maxID + 1);
-                                    insertGraph.setDouble(3, (Double) AEJSelected[sel][(AAJsSelected.size()-i)*(-1)]);
+                                    insertGraph.setDouble(3, (Double) AEJSelected[sel][(AAJsSelected.size() - i) * (-1)]);
                                     insertGraph.executeUpdate();
 
                                     PreparedStatement insertGraph1 = conn.prepareStatement("INSERT INTO GraphTable VALUES (?,?,?)");
                                     insertGraph1.setLong(1, maxID + 1);
                                     insertGraph1.setInt(2, i);
-                                    insertGraph1.setDouble(3, (Double) AEJSelected[sel][(AAJsSelected.size()-i)*(-1)]);
+                                    insertGraph1.setDouble(3, (Double) AEJSelected[sel][(AAJsSelected.size() - i) * (-1)]);
                                     insertGraph1.executeUpdate();
 
                                     PreparedStatement insertGraphAttr = conn.prepareStatement("INSERT INTO GraphTableAttr VALUES (?,?,?)");
                                     insertGraphAttr.setLong(1, i);
                                     insertGraphAttr.setInt(2, maxID + 1);
-                                    insertGraphAttr.setDouble(3, (Double) AAJSelected[sel][(AAJsSelected.size()-i)*(-1)]);
+                                    insertGraphAttr.setDouble(3, (Double) AAJSelected[sel][(AAJsSelected.size() - i) * (-1)]);
                                     insertGraphAttr.executeUpdate();
 
                                     PreparedStatement insertGraphAttr1 = conn.prepareStatement("INSERT INTO GraphTableAttr VALUES (?,?,?)");
                                     insertGraphAttr1.setLong(1, maxID + 1);
                                     insertGraphAttr1.setInt(2, i);
-                                    insertGraphAttr1.setDouble(3, (Double) AAJSelected[sel][(AAJsSelected.size()-i)*(-1)]);
+                                    insertGraphAttr1.setDouble(3, (Double) AAJSelected[sel][(AAJsSelected.size() - i) * (-1)]);
                                     insertGraphAttr1.executeUpdate();
                                 }
                             }

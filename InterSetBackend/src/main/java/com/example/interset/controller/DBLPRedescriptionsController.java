@@ -211,8 +211,8 @@ public class DBLPRedescriptionsController {
         return redescriptionsService.attributeRedescriptionsSel(request, DataBaseEnum.DBL);
     }
 
-    @GetMapping(value="/clusrmSettings")
-    public JSONObject clusrmSettings(@RequestParam Map<String,String> request){
+    @PostMapping(value="/clusrmSettings")
+    public JSONObject clusrmSettings(@RequestBody JSONObject request){
         return redescriptionsService.clusrmSettings(request, DataBaseEnum.DBL);
     }
 

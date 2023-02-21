@@ -44,7 +44,7 @@ public class RedescriptionsService {
     }
 
     public JSONObject somDataGet(DataBaseEnum database){
-        logger.info("GET Som data called! ");
+        System.out.println("GET Som data called! ");
 
         JSONObject res = new JSONObject();
         res.put("somData", new ArrayList<>());
@@ -245,7 +245,7 @@ public class RedescriptionsService {
         return redescriptionsRepository.attributeRedescriptionsSel(request, database);
     }
 
-    public JSONObject clusrmSettings(Map<String,String> request, DataBaseEnum database){
+    public JSONObject clusrmSettings(JSONObject request, DataBaseEnum database){
 
         return redescriptionsRepository.clusrmSettings(request, database);
     }

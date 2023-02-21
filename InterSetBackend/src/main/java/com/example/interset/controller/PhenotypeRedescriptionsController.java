@@ -211,9 +211,9 @@ public class PhenotypeRedescriptionsController {
         return redescriptionsService.attributeRedescriptionsSel(request, DataBaseEnum.PHENOTYPE);
     }
 
-    @GetMapping(value="/clusrmSettings")
-    public JSONObject clusrmSettings(@RequestParam Map<String,String> request){
-        return redescriptionsService.clusrmSettings(request, DataBaseEnum.PHENOTYPE);
+    @PostMapping(value="/clusrmSettings")
+    public JSONObject clusrmSettings(@RequestBody JSONObject request){
+        return redescriptionsService.clusrmSettings(request, DataBaseEnum.DBL);
     }
 
     @PostMapping(value="/clusrmSettingsElements")

@@ -211,8 +211,8 @@ public class TradeRedescriptionsController {
         return redescriptionsService.attributeRedescriptionsSel(request, DataBaseEnum.TRADE);
     }
 
-    @GetMapping(value="/clusrmSettings")
-    public JSONObject clusrmSettings(@RequestParam Map<String,String> request){
+    @PostMapping(value="/clusrmSettings")
+    public JSONObject clusrmSettings(@RequestBody JSONObject request){
         return redescriptionsService.clusrmSettings(request, DataBaseEnum.TRADE);
     }
 
